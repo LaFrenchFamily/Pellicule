@@ -83,6 +83,22 @@ img { max-width: 100%; display: block; }
   transition: background .2s var(--ease), border-color .2s var(--ease), transform .2s var(--ease);
 }
 .icon-btn:hover { background: var(--surface-2); border-color: rgba(244,230,210,.22); }
+.acct-btn { font-weight: 800; font-size: 15px; }
+.acct-btn.in { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--ink); border-radius: var(--r-pill); padding: 4px; gap: 4px; }
+.tabs button { height: 40px; border: 0; border-radius: var(--r-pill); background: none; color: var(--muted); font-weight: 700; cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--surface-2); color: var(--text); }
+.btn-google { width: 100%; justify-content: center; background: #fff; color: #1f1f1f; }
+.btn-google:hover { background: #f1f1f1; }
+.or { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .12em; }
+.or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.auth-form { display: grid; gap: 14px; }
+.auth-form .btn-primary { width: 100%; justify-content: center; }
+.field input.plain { font-family: var(--font-body); }
+.who { display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 14px; background: var(--ink); }
+.who .avatar-sm { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); font-weight: 800; font-size: 20px; flex: none; }
+.who b { display: block; overflow-wrap: anywhere; }
+.who small { color: var(--ok); font-size: 13px; }
 .mode-dot { position: relative; }
 .mode-dot::after { content: ""; position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); }
 .mode-dot.live::after { background: var(--ok); }
@@ -317,6 +333,9 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wr
       <label class="sr" for="q">Rechercher un film, une série ou un animé</label>
       <input id="q" type="search" placeholder="Rechercher un film, une série, un animé…" autocomplete="off">
     </div>
+    <button class="icon-btn acct-btn" id="acctBtn" aria-label="Mon compte" title="Mon compte" hidden>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+    </button>
     <button class="icon-btn mode-dot" id="settingsBtn" aria-label="Réglages et clé TMDB" title="Réglages">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
     </button>
@@ -485,6 +504,7 @@ function toggle(list, it) {
   const on = i < 0;
   if (on) arr.unshift(slim(it)); else arr.splice(i, 1);
   save(); updateCounts();
+  cloudWrite(list, on ? arr[0] : { key: keyOf(it) }, on);
   toast(list === "fav" ? (on ? "Ajouté à tes favoris" : "Retiré des favoris") : (on ? "Ajouté à ta liste « À voir »" : "Retiré de « À voir »"), list === "fav" ? I.heart(true) : I.mark(true));
   return on;
 }
@@ -798,7 +818,8 @@ async function viewDetail(type, id) {
 /* ================= Routeur ================= */
 let lastRoute = "";
 function router() {
-  const h = (location.hash || "#accueil").slice(1);
+  let h = (location.hash || "#accueil").slice(1);
+  if (h.includes("=")) h = "accueil"; // retour de connexion (jetons dans l'adresse)
   const navKey = h.startsWith("film-") || h.startsWith("serie-") ? "" : h;
   document.querySelectorAll("[data-nav]").forEach(a => { if (a.dataset.nav === navKey) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   if (h !== "recherche" && !h.startsWith("film-") && !h.startsWith("serie-")) document.title = "Pellicule";
@@ -918,9 +939,151 @@ function toast(msg, icon = "") {
   clearTimeout(tt); tt = setTimeout(() => t.classList.remove("show"), 1900);
 }
 
+/* ================= Comptes (Supabase) ================= */
+const SB_URL = "https://xrhxqrfmufbhvbytxsrz.supabase.co"; const SB_KEY = "sb_publishable_yB3MDSYgl32AlnG2EhFqSQ_WVZ6LKfO"; const GOOGLE_ON = false; // remplis à la publication
+let sb = null, user = null;
+const AUTH_ERR = [
+  [/invalid login credentials/i, "E-mail ou mot de passe incorrect."],
+  [/already registered|already been registered/i, "Un compte existe déjà avec cet e-mail. Connecte-toi plutôt."],
+  [/at least 6|password should be/i, "Le mot de passe doit faire au moins 6 caractères."],
+  [/email not confirmed/i, "Confirme d'abord ton e-mail avec le lien reçu (regarde aussi dans les spams)."],
+  [/rate limit|too many|security purposes/i, "Trop de tentatives. Réessaie dans quelques minutes."],
+  [/invalid email|unable to validate email/i, "Cette adresse e-mail n'est pas valide."],
+  [/provider is not enabled|unsupported provider/i, "La connexion Google n'est pas encore activée."],
+  [/failed to fetch|network/i, "Connexion impossible. Vérifie ton réseau et réessaie."],
+];
+const authMsg = (e) => { const m = e?.message || String(e); return (AUTH_ERR.find(([r]) => r.test(m)) || [, m])[1]; };
+const backUrl = () => location.origin + location.pathname;
+
+async function cloudWrite(list, item, on) {
+  if (!sb || !user) return;
+  const q = on
+    ? sb.from("list_items").upsert({ user_id: user.id, list, item_key: item.key, item, added_at: new Date(item.added || Date.now()).toISOString() })
+    : sb.from("list_items").delete().eq("user_id", user.id).eq("list", list).eq("item_key", item.key);
+  const { error } = await q;
+  if (error) toast("Pas pu enregistrer dans ton compte. Réessaie.", I.info);
+}
+async function syncOnLogin() {
+  const { data, error } = await sb.from("list_items").select("list,item_key,item,added_at").order("added_at", { ascending: false });
+  if (error) { toast("Impossible de charger tes listes.", I.info); return; }
+  const cloud = { fav: [], watch: [] };
+  data.forEach(r => cloud[r.list]?.push({ ...r.item, key: r.item_key, added: Date.parse(r.added_at) }));
+  const up = [];
+  for (const list of ["fav", "watch"]) {
+    const have = new Set(cloud[list].map(x => x.key));
+    for (const it of state.saved[list]) if (!it.example && !have.has(it.key)) { cloud[list].push(it); up.push({ user_id: user.id, list, item_key: it.key, item: it, added_at: new Date(it.added || Date.now()).toISOString() }); }
+    cloud[list].sort((a, b) => (b.added || 0) - (a.added || 0));
+    state.saved[list] = cloud[list];
+  }
+  if (up.length) await sb.from("list_items").upsert(up);
+  save(); updateCounts(); rerender();
+}
+function renderAcct() {
+  const b = $("#acctBtn"); if (!sb) { b.hidden = true; return; }
+  b.hidden = false; b.classList.toggle("in", !!user);
+  if (user) { b.textContent = (user.user_metadata?.full_name || user.email || "?").trim()[0].toUpperCase(); b.setAttribute("aria-label", "Mon compte : " + user.email); }
+  else { b.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>`; b.setAttribute("aria-label", "Se connecter"); }
+}
+function initAuth() {
+  if (!SB_URL || !SB_KEY) return;
+  const s = document.createElement("script");
+  s.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js";
+  s.onload = () => {
+    try { sb = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }); }
+    catch { return; }
+    renderAcct();
+    sb.auth.onAuthStateChange((ev, session) => {
+      const u = session?.user || null; const changed = (u?.id || null) !== (user?.id || null);
+      user = u; renderAcct();
+      if (location.hash.includes("=")) history.replaceState(null, "", location.pathname + "#accueil");
+      if (ev === "PASSWORD_RECOVERY") { setTimeout(() => openAccount("reset"), 0); return; }
+      if (changed && u) setTimeout(() => { syncOnLogin(); if (ev === "SIGNED_IN") toast("Connecté. Tes listes sont synchronisées.", I.heart(true)); }, 0);
+    });
+  };
+  document.head.appendChild(s);
+}
+$("#acctBtn").addEventListener("click", () => openAccount());
+
+function openAccount(mode = "login") {
+  document.querySelector(".overlay")?.remove();
+  const ov = document.createElement("div"); ov.className = "overlay";
+  const close = () => { ov.remove(); document.removeEventListener("keydown", onKey); };
+  const onKey = (e) => { if (e.key === "Escape") close(); };
+  document.addEventListener("keydown", onKey);
+  ov.addEventListener("click", (e) => { if (e.target === ov || e.target.closest("[data-close]")) close(); });
+  const head = (t) => `<div class="sheet-head"><h2 id="acT">${t}</h2><button class="icon-btn" data-close aria-label="Fermer">${I.close}</button></div>`;
+  const google = GOOGLE_ON ? `<button class="btn btn-google" id="gBtn" type="button"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continuer avec Google</button><div class="or">ou</div>` : "";
+  let html;
+  if (user) {
+    html = `${head("Mon compte")}<div class="who"><span class="avatar-sm">${esc((user.email || "?")[0].toUpperCase())}</span><div><b>${esc(user.email)}</b><small>Listes synchronisées sur tous tes appareils</small></div></div>
+      <p>${state.saved.fav.length} favori${state.saved.fav.length > 1 ? "s" : ""} et ${state.saved.watch.length} titre${state.saved.watch.length > 1 ? "s" : ""} à voir enregistrés dans ton compte.</p>
+      <div class="sheet-actions"><button class="btn btn-ghost" id="outBtn">Se déconnecter</button></div>`;
+  } else if (mode === "forgot") {
+    html = `${head("Mot de passe oublié")}<p>Indique ton e-mail, on t'envoie un lien pour choisir un nouveau mot de passe.</p>
+      <form class="auth-form" id="aForm" novalidate><div class="field"><label for="aEmail">E-mail</label><input class="plain" id="aEmail" type="email" autocomplete="email" required></div>
+      <div class="status" id="aStatus" hidden></div><button class="btn btn-primary" type="submit">Envoyer le lien</button></form>
+      <button class="link-btn" data-mode="login">Retour à la connexion</button>`;
+  } else if (mode === "reset") {
+    html = `${head("Nouveau mot de passe")}<form class="auth-form" id="aForm" novalidate><div class="field"><label for="aPass">Nouveau mot de passe</label><input class="plain" id="aPass" type="password" autocomplete="new-password" minlength="6" required></div>
+      <div class="status" id="aStatus" hidden></div><button class="btn btn-primary" type="submit">Enregistrer</button></form>`;
+  } else {
+    const signup = mode === "signup";
+    html = `${head(signup ? "Créer un compte" : "Se connecter")}
+      <p>${signup ? "Garde tes favoris et ta liste « À voir » sur tous tes appareils." : "Retrouve tes favoris et ta liste « À voir » partout."}</p>
+      <div class="tabs" role="tablist"><button role="tab" data-mode="login" aria-selected="${!signup}">Connexion</button><button role="tab" data-mode="signup" aria-selected="${signup}">Inscription</button></div>
+      ${google}
+      <form class="auth-form" id="aForm" novalidate>
+        <div class="field"><label for="aEmail">E-mail</label><input class="plain" id="aEmail" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="aPass">Mot de passe${signup ? " (6 caractères minimum)" : ""}</label><input class="plain" id="aPass" type="password" autocomplete="${signup ? "new-password" : "current-password"}" minlength="6" required></div>
+        <div class="status" id="aStatus" hidden></div>
+        <button class="btn btn-primary" type="submit">${signup ? "Créer mon compte" : "Se connecter"}</button>
+      </form>
+      ${signup ? "" : `<button class="link-btn" data-mode="forgot">Mot de passe oublié ?</button>`}
+      ${state.saved.fav.some(x => !x.example) || state.saved.watch.some(x => !x.example) ? `<p style="font-size:13px">Les titres déjà dans tes listes seront ajoutés à ton compte.</p>` : ""}`;
+  }
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="acT">${html}</div>`;
+  document.body.appendChild(ov);
+  ov.querySelectorAll("[data-mode]").forEach(b => b.addEventListener("click", () => openAccount(b.dataset.mode)));
+  (ov.querySelector("#aEmail") || ov.querySelector("#aPass") || ov.querySelector("#outBtn"))?.focus();
+  const st = ov.querySelector("#aStatus");
+  const say = (msg, cls = "") => { st.hidden = false; st.className = "status " + cls; st.textContent = msg; };
+  ov.querySelector("#gBtn")?.addEventListener("click", async () => {
+    const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: backUrl() } });
+    if (error) say(authMsg(error), "err");
+  });
+  ov.querySelector("#outBtn")?.addEventListener("click", async () => {
+    await sb.auth.signOut(); user = null; state.saved.fav = []; state.saved.watch = []; save(); updateCounts(); renderAcct(); close(); rerender(); toast("Déconnecté", I.info);
+  });
+  ov.querySelector("#aForm")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = ov.querySelector("#aEmail")?.value.trim(); const pass = ov.querySelector("#aPass")?.value || "";
+    const btn = e.target.querySelector("button[type=submit]"); btn.disabled = true;
+    try {
+      if (mode !== "reset" && !/^\S+@\S+\.\S+$/.test(email)) throw new Error("invalid email");
+      if (mode === "forgot") {
+        const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: backUrl() }); if (error) throw error;
+        say("C'est envoyé. Ouvre le lien reçu par e-mail (regarde aussi dans les spams).", "ok");
+      } else if (mode === "reset") {
+        const { error } = await sb.auth.updateUser({ password: pass }); if (error) throw error;
+        say("Mot de passe changé. Tu es connecté.", "ok"); setTimeout(close, 1200);
+      } else if (mode === "signup") {
+        const { data, error } = await sb.auth.signUp({ email, password: pass, options: { emailRedirectTo: backUrl() } }); if (error) throw error;
+        if (data.session) { close(); }
+        else if (data.user && !data.user.identities?.length) say("Un compte existe déjà avec cet e-mail. Connecte-toi plutôt.", "err");
+        else say("Presque fini : clique sur le lien envoyé à " + email + " pour confirmer ton compte (regarde aussi dans les spams).", "ok");
+      } else {
+        const { error } = await sb.auth.signInWithPassword({ email, password: pass }); if (error) throw error;
+        close();
+      }
+    } catch (err) { say(authMsg(err), "err"); }
+    btn.disabled = false;
+  });
+}
+
 applyMode(); updateCounts();
 window.addEventListener("hashchange", router);
 router();
+initAuth();
 })();
 </script>
 
