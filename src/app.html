@@ -99,13 +99,13 @@ img { max-width: 100%; display: block; }
 
 /* Barre du bas sur mobile */
 .tabbar { display: none; }
-@media (max-width: 860px) {
+@media (max-width: 1080px) {
   .nav { display: none; }
   .top-row { gap: 12px; flex-wrap: wrap; }
   .search { order: 3; flex-basis: 100%; max-width: none; }
   .top-row .icon-btn { margin-left: auto; }
   .tabbar {
-    display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
     background: rgba(18,15,24,.94); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
     border-top: 1px solid var(--line);
     padding: 6px var(--gutter-r) calc(6px + env(safe-area-inset-bottom, 0px)) var(--gutter-l);
@@ -335,6 +335,21 @@ a.person:hover b { color: var(--accent); }
 
 /* ---------- Réglages (fenêtre) ---------- */
 .overlay { position: fixed; inset: 0; z-index: 80; background: rgba(5,4,8,.7); backdrop-filter: blur(6px); display: grid; place-items: center; padding: 16px; animation: fade .2s var(--ease); }
+.vis-pill { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border-radius: var(--r-pill); border: 1px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.vis-pill.pub { color: var(--ok); border-color: rgba(111,211,168,.4); background: rgba(111,211,168,.08); }
+.vis-pill:hover { color: var(--text); }
+.members { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap: 16px; }
+.member { display: grid; gap: 14px; padding: 16px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; transition: border-color .2s var(--ease), transform .2s var(--ease); min-width: 0; }
+.member:hover { border-color: rgba(242,180,73,.45); transform: translateY(-2px); }
+.member-top { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.member-top .avatar-sm { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 18px; color: #fff; flex: none; }
+.member-top b { display: block; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.member-top small { color: var(--muted); font-size: 13px; }
+.strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.strip span { aspect-ratio: 2/3; border-radius: 8px; overflow: hidden; position: relative; background: var(--surface-2); }
+.strip img { width: 100%; height: 100%; object-fit: cover; } .strip .art { padding: 0; } .strip .art > * { display: none; }
+.member .genre-chips span { font-size: 11px; padding: 3px 8px; }
+.me-badge { font-size: 11px; font-weight: 700; color: var(--accent); margin-left: 6px; }
 .sheet.wide { width: min(680px, 100%); }
 .steps-dots { display: flex; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
 .steps-dots i { width: 28px; height: 4px; border-radius: 4px; background: var(--surface-2); }
@@ -377,7 +392,7 @@ a.person:hover b { color: var(--accent); }
 /* ---------- Toast ---------- */
 .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(20px); z-index: 90; background: var(--text); color: var(--ink); font-weight: 700; font-size: 14px; padding: 12px 18px; border-radius: var(--r-pill); box-shadow: var(--shadow); opacity: 0; pointer-events: none; transition: all .25s var(--ease); display: flex; gap: 8px; align-items: center; max-width: calc(100vw - 32px); }
 .toast.show { opacity: 1; transform: translateX(-50%); }
-@media (max-width: 860px) { .toast { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); } }
+@media (max-width: 1080px) { .toast { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); } }
 
 .view { animation: rise .35s var(--ease); }
 @keyframes rise { from { opacity: .4; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -395,6 +410,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wr
       <a href="#pellicules" data-nav="pellicules">Mes pellicules <span class="count" data-count="fav">0</span></a>
       <a href="#a-voir" data-nav="a-voir">À voir <span class="count" data-count="watch">0</span></a>
       <a href="#suggestions" data-nav="suggestions">Suggestions</a>
+      <a href="#communaute" data-nav="communaute">Communauté</a>
     </nav>
     <div class="search" role="search">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -422,6 +438,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wr
   <a href="#pellicules" data-nav="pellicules"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Pellicules<span class="count" data-count="fav" hidden>0</span></a>
   <a href="#a-voir" data-nav="a-voir"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>À voir<span class="count" data-count="watch" hidden>0</span></a>
   <a href="#suggestions" data-nav="suggestions"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.2 5.6L20 9.5l-4.5 3.8L17 19l-5-3.2L7 19l1.5-5.7L4 9.5l5.8-.9z"/></svg>Pour toi</a>
+  <a href="#communaute" data-nav="communaute"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.6-5.5 6.5-5.5s5.5 2 6.5 5.5"/><circle cx="17" cy="9" r="2.8"/><path d="M16 14.6c2.6.1 4.6 1.9 5.5 5"/></svg>Membres</a>
 </nav>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -440,6 +457,7 @@ const I = {
   back: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>`,
   info: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h0"/></svg>`,
   folder: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`,
+  lock: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>`,
   plus: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>`,
   check: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>`,
   close: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>`,
@@ -925,6 +943,7 @@ function viewPellicules() {
         : `<button class="link-btn" data-folder-ui="rename">Renommer</button><button class="link-btn danger" data-folder-ui="delete">Supprimer</button>`}</div></div>` : "";
   app.innerHTML = `<div class="view"><div class="wrap page-head"><div>
       <h1>Mes <em>pellicules</em></h1>
+      <div style="margin-top:10px">${visPillHTML()}</div>
       <p>Les titres que tu as aimés, rangés comme tu veux. Ils servent aussi à te proposer des suggestions.${hasEx ? " Les titres déjà présents sont des exemples, retire-les quand tu veux." : ""}</p>
     </div>${items.length ? chipsHTML() : ""}</div>
     <div class="wrap" style="display:grid;gap:12px">${items.length || folders.length ? bar : ""}${fhead}</div>
@@ -1124,26 +1143,95 @@ async function viewPerson(id) {
   } catch (e) { app.innerHTML = errorBox(e.message); }
 }
 
+/* ================= Communauté ================= */
+async function setPublic(on) {
+  if (!sb || !user) { openAccount("signup"); return; }
+  const draft = { ...(state.profile || {}), is_public: on };
+  if (await saveProfile(draft, state.profile?.completed || false)) {
+    toast(on ? "Tes pellicules sont maintenant publiques" : "Tes pellicules sont maintenant privées", on ? I.check : I.info);
+    if (on && !state.profile?.display_name) setTimeout(() => toast("Ajoute un pseudo dans « Mon compte » pour qu'on te reconnaisse.", I.info), 2000);
+    rerender();
+  }
+}
+function visPillHTML() {
+  if (!sb) return "";
+  if (!user) return `<button class="vis-pill" data-open-acct>${I.info} Crée un compte pour partager tes pellicules</button>`;
+  const pub = !!state.profile?.is_public;
+  return pub ? `<span style="display:inline-flex;gap:10px;align-items:center;flex-wrap:wrap"><a class="vis-pill pub" href="#membre-${esc(user.id)}">${I.check} Public · voir ma page</a><button class="link-btn" data-set-public="0">Rendre privé</button></span>`
+    : `<button class="vis-pill" data-set-public="1">${I.lock} Privé · rendre public</button>`;
+}
+const avatarBg = (n) => `background:linear-gradient(140deg,hsl(${hashHue(n || "?")} 50% 40%),hsl(${(hashHue(n || "?") + 50) % 360} 55% 24%))`;
+async function viewCommunity() {
+  const headFn = () => `<div class="wrap page-head"><div><h1>La <em>communauté</em></h1><p>Les pellicules des membres qui ont choisi de les partager. Les comptes privés n'apparaissent pas.</p></div>${sb ? visPillHTML() : ""}</div>`;
+  let head = headFn();
+  if (!SB_URL) { app.innerHTML = `<div class="view">${head}<div class="wrap"><div class="empty"><h3>Bientôt disponible</h3><p>La communauté est disponible sur la version en ligne du site.</p></div></div></div>`; return; }
+  app.innerHTML = `<div class="view">${head}<div class="wrap"><div class="members">${Array.from({ length: 6 }, () => `<div class="skel" style="height:210px;border-radius:18px"></div>`).join("")}</div></div></div>`;
+  try {
+    await sbReady();
+    head = headFn();
+    const { data, error } = await sb.rpc("public_members"); if (error) throw error;
+    const list = data || [];
+    app.innerHTML = `<div class="view">${head}<div class="wrap">${list.length ? `<div class="members">${list.map(m => {
+      const name = m.display_name || "Membre";
+      const prev = (m.preview || []).slice(0, 4);
+      return `<a class="member" href="#membre-${esc(m.id)}"><div class="member-top"><span class="avatar-sm" style="${avatarBg(name)}">${esc(name[0].toUpperCase())}</span><div style="min-width:0"><b>${esc(name)}${user && m.id === user.id ? `<span class="me-badge">C'est toi</span>` : ""}</b><small>${m.fav_count} pellicule${m.fav_count > 1 ? "s" : ""}</small></div></div>
+        <div class="strip">${prev.map(it => `<span>${posterHTML(it)}</span>`).join("")}${Array.from({ length: 4 - prev.length }, () => "<span></span>").join("")}</div>
+        ${m.genres?.length ? `<div class="genre-chips">${m.genres.slice(0, 4).map(g => `<span>${esc(g)}</span>`).join("")}</div>` : ""}</a>`;
+    }).join("")}</div>` : `<div class="empty"><div class="ico">${I.spark}</div><h3>Personne n'a encore partagé ses pellicules</h3><p>Sois le premier : rends tes pellicules publiques et envoie le lien du site à tes amis.</p>${user && !state.profile?.is_public ? `<button class="btn btn-primary" data-set-public="1">Rendre mes pellicules publiques</button>` : ""}</div>`}</div></div>`;
+  } catch (e) { app.innerHTML = errorBox("Impossible de charger la communauté pour le moment."); }
+}
+async function viewMember(id) {
+  if (!SB_URL) return viewCommunity();
+  app.innerHTML = `<div class="view"><div class="wrap page-head"><div class="skel" style="height:64px;width:50%"></div></div><div class="wrap"><div class="grid">${Array.from({ length: 8 }, () => `<div class="skel" style="aspect-ratio:2/3"></div>`).join("")}</div></div></div>`;
+  try {
+    await sbReady();
+    const { data: m, error } = await sb.rpc("public_member", { member: id }); if (error) throw error;
+    if (!m) { app.innerHTML = `<div class="view"><div class="wrap"><button class="btn btn-ghost back" data-back>${I.back} Retour</button><div class="empty"><div class="ico">${I.lock.replace('width="15" height="15"', 'width="30" height="30"')}</div><h3>Ces pellicules sont privées</h3><p>Ce membre n'a pas choisi de partager ses pellicules, ou son compte n'existe plus.</p><a class="btn btn-primary" href="#communaute">Voir la communauté</a></div></div></div>`; return; }
+    if (state.memberFor !== id) { state.memberFor = id; state.mFolder = "all"; }
+    const name = m.display_name || "Membre"; const items = m.items || []; const folders = (m.folders || []).filter(f => items.some(it => (it.folders || []).includes(f.id)));
+    const cur = folders.find(f => f.id === state.mFolder);
+    const shown = (cur ? items.filter(it => (it.folders || []).includes(cur.id)) : items).filter(passFilter);
+    remember(items);
+    const isMe = user && user.id === id;
+    document.title = `Les pellicules de ${name} · Pellicule`;
+    const favs = [m.favorites?.movie, m.favorites?.show].filter(Boolean);
+    app.innerHTML = `<div class="view">
+      <div class="wrap"><button class="btn btn-ghost back" data-back>${I.back} Retour</button></div>
+      <div class="wrap page-head"><div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+        <span class="avatar-sm" style="width:72px;height:72px;border-radius:50%;display:grid;place-items:center;font-size:30px;font-weight:800;color:#fff;${avatarBg(name)}">${esc(name[0].toUpperCase())}</span>
+        <div><h1>Les pellicules <em>de ${esc(name)}</em></h1><p>${items.length} titre${items.length > 1 ? "s" : ""}${m.genres?.length ? ` · aime ${esc(m.genres.slice(0, 4).join(", "))}` : ""}${favs.length ? ` · préférés : ${esc(favs.map(f => f.title).join(", "))}` : ""}</p>
+        ${isMe ? `<p style="margin-top:6px;color:var(--ok);font-size:13px">C'est ta page publique : c'est ce que voient les autres membres.</p>` : ""}</div>
+      </div>${items.length ? chipsHTML() : ""}</div>
+      ${folders.length ? `<div class="wrap"><div class="folder-bar"><button class="fchip" data-mfolder="all" aria-pressed="${!cur}">Tous les titres <span class="n">${items.length}</span></button>${folders.map(f => `<button class="fchip" data-mfolder="${esc(f.id)}" aria-pressed="${cur?.id === f.id}">${I.folder}${esc(f.name)} <span class="n">${items.filter(it => (it.folders || []).includes(f.id)).length}</span></button>`).join("")}</div></div>` : ""}
+      <div class="wrap" style="padding-top:20px">${shown.length ? `<div class="grid">${shown.map(i => cardHTML(i)).join("")}</div>` : `<div class="empty"><h3>${items.length ? "Rien dans ce filtre" : "Pas encore de pellicule"}</h3><p>${items.length ? "Choisis « Tout » pour revoir tous ses titres." : `${esc(name)} n'a encore rien ajouté.`}</p></div>`}</div>
+    </div>`;
+  } catch (e) { app.innerHTML = errorBox("Impossible de charger ces pellicules pour le moment."); }
+}
+// Attend que la librairie Supabase soit chargée (elle arrive juste après la page).
+function sbReady() { return new Promise((res, rej) => { let n = 0; const t = setInterval(() => { if (sb) { clearInterval(t); res(); } else if (++n > 100) { clearInterval(t); rej(new Error("Supabase indisponible")); } }, 50); }); }
+
 /* ================= Routeur ================= */
 let lastRoute = "";
 function router() {
   let h = (location.hash || "#accueil").slice(1);
   if (h.includes("=")) h = "accueil"; // retour de connexion (jetons dans l'adresse)
   if (h === "favoris") { history.replaceState(null, "", "#pellicules"); h = "pellicules"; }
-  const isPage = (x) => /^(film|serie|personne)-/.test(x);
+  const isPage = (x) => /^(film|serie|personne|membre)-/.test(x);
   const navKey = isPage(h) ? "" : h;
   document.querySelectorAll("[data-nav]").forEach(a => { if (a.dataset.nav === navKey) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   if (h !== "recherche" && !isPage(h)) document.title = "Pellicule";
   if (h !== lastRoute) window.scrollTo({ top: 0 });
-  if (h !== lastRoute && (["pellicules","a-voir","suggestions","recherche"].includes(h) || h.startsWith("personne-"))) state.filter = "all";
+  if (h !== lastRoute && (["pellicules","a-voir","suggestions","recherche"].includes(h) || h.startsWith("personne-") || h.startsWith("membre-"))) state.filter = "all";
   lastRoute = h;
   let m;
   if ((m = h.match(/^(film|serie)-(.+)$/))) return viewDetail(m[1] === "film" ? "movie" : "tv", m[2]);
   if ((m = h.match(/^personne-(.+)$/))) return viewPerson(m[1]);
+  if ((m = h.match(/^membre-([0-9a-f-]{36})$/))) return viewMember(m[1]);
   switch (h) {
     case "pellicules": return viewPellicules();
     case "a-voir": return viewList("watch");
     case "suggestions": return viewSuggestions();
+    case "communaute": return viewCommunity();
     case "recherche": return viewSearch();
     default: return viewHome();
   }
@@ -1188,6 +1276,11 @@ document.addEventListener("click", (e) => {
   if (sc) { e.preventDefault(); document.getElementById(sc.dataset.scroll)?.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
   if (e.target.closest("[data-back]")) { if (history.length > 1) history.back(); else location.hash = "#accueil"; return; }
   if (e.target.closest("[data-retry]")) return rerender();
+  const sp = e.target.closest("[data-set-public]");
+  if (sp) { document.querySelector(".overlay")?.remove(); return setPublic(sp.dataset.setPublic === "1"); }
+  if (e.target.closest("[data-open-acct]")) return openAccount("signup");
+  const mf = e.target.closest("[data-mfolder]");
+  if (mf) { state.mFolder = mf.dataset.mfolder; return rerender(); }
   const fb = e.target.closest("[data-folder]");
   if (fb) { state.folder = fb.dataset.folder; state.folderUI = ""; return viewPellicules(); }
   const fui = e.target.closest("[data-folder-ui]");
@@ -1371,6 +1464,7 @@ function openAccount(mode = "login") {
     const sum = pr ? [["Âge", pr.age_range], ["Genres", (pr.genres || []).join(", ")], ["Film préféré", pr.favorites?.movie?.title], ["Série / animé préféré", pr.favorites?.show?.title], ["Plateformes", (pr.platforms || []).join(", ")]].filter(([, v]) => v) : [];
     html = `${head(pr?.display_name ? `Salut ${esc(pr.display_name)}` : "Mon compte")}<div class="who"><span class="avatar-sm">${esc((pr?.display_name || user.email || "?")[0].toUpperCase())}</span><div><b>${esc(user.email)}</b><small>Listes synchronisées sur tous tes appareils</small></div></div>
       <p>${state.saved.fav.length} pellicule${state.saved.fav.length > 1 ? "s" : ""} et ${state.saved.watch.length} titre${state.saved.watch.length > 1 ? "s" : ""} à voir enregistrés dans ton compte.</p>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">${visPillHTML()}</div>
       ${sum.length ? `<div class="profile-sum">${sum.map(([k, v]) => `<span>${esc(k)} : <b>${esc(v)}</b></span>`).join("")}</div>` : `<p>Ton profil n'est pas encore rempli. Il sert à te proposer des titres qui te ressemblent.</p>`}
       <div class="sheet-actions"><button class="btn btn-primary" id="pfBtn">${pr?.completed ? "Modifier mon profil" : "Compléter mon profil"}</button><button class="btn btn-ghost" id="outBtn">Se déconnecter</button></div>`;
   } else if (mode === "forgot") {
@@ -1456,7 +1550,7 @@ async function loadProfile() {
 }
 async function saveProfile(draft, completed) {
   const row = { id: user.id, display_name: (draft.display_name || "").trim().slice(0, 40) || null, age_range: draft.age_range || null, kinds: draft.kinds || [], genres: draft.genres || [],
-    favorites: draft.favorites || {}, platforms: draft.platforms || [], lang: draft.lang || null, completed: !!completed, updated_at: new Date().toISOString() };
+    favorites: draft.favorites || {}, platforms: draft.platforms || [], lang: draft.lang || null, is_public: !!draft.is_public, completed: !!completed, updated_at: new Date().toISOString() };
   const { error } = await sb.from("profiles").upsert(row);
   if (error) { toast("Pas pu enregistrer ton profil. Réessaie.", I.info); return false; }
   state.profile = row; state.saved.profile = row; save(); renderAcct(); return true;
@@ -1476,7 +1570,8 @@ function openProfile(step = 1, first = false) {
     const body = step === 1 ? `
         <div class="field"><label for="pfName">Ton prénom ou pseudo</label><input class="plain" id="pfName" maxlength="40" value="${esc(draft.display_name || "")}" placeholder="Comment on t'appelle ?"></div>
         <div class="pf-q"><b>Ta tranche d'âge</b><div class="chips">${AGE_RANGES.map(a => `<button type="button" class="chip" data-pf1="age_range" data-v="${esc(a)}" aria-pressed="${draft.age_range === a}">${esc(a)}</button>`).join("")}</div></div>
-        <div class="pf-q"><b>Tu regardes plutôt…</b><div class="chips">${LANGS.map(([v, l]) => `<button type="button" class="chip" data-pf1="lang" data-v="${esc(v)}" aria-pressed="${draft.lang === v}">${esc(l)}</button>`).join("")}</div><small>On choisira la bande-annonce dans cette version quand elle existe.</small></div>`
+        <div class="pf-q"><b>Tu regardes plutôt…</b><div class="chips">${LANGS.map(([v, l]) => `<button type="button" class="chip" data-pf1="lang" data-v="${esc(v)}" aria-pressed="${draft.lang === v}">${esc(l)}</button>`).join("")}</div><small>On choisira la bande-annonce dans cette version quand elle existe.</small></div>
+        <div class="pf-q"><b>Qui peut voir tes pellicules ?</b><div class="chips"><button type="button" class="chip" data-vis="0" aria-pressed="${!draft.is_public}">Moi seulement (privé)</button><button type="button" class="chip" data-vis="1" aria-pressed="${!!draft.is_public}">Tout le monde (public)</button></div><small>En public, ton pseudo, tes genres et Mes pellicules apparaissent dans la page Communauté. Ton e-mail et ton âge restent privés.</small></div>`
       : step === 2 ? `
         <div class="pf-q"><b>Ce que tu aimes regarder</b><div class="chips">${multi("kinds", KINDS)}</div></div>
         <div class="pf-q"><b>Tes genres préférés</b><small>Choisis-en autant que tu veux.</small><div class="chips">${multi("genres", PROFILE_GENRES.map(g => [g, g]))}</div></div>`
@@ -1516,6 +1611,7 @@ function openProfile(step = 1, first = false) {
   ov.addEventListener("click", async (e) => {
     const t = e.target;
     if (t === ov || t.closest("[data-close]")) return close();
+    const vb = t.closest("[data-vis]"); if (vb) { keep(); draft.is_public = vb.dataset.vis === "1"; return draw(); }
     const c1 = t.closest("[data-pf1]"); if (c1) { keep(); const k = c1.dataset.pf1; draft[k] = draft[k] === c1.dataset.v ? null : c1.dataset.v; return draw(); }
     const cm = t.closest("[data-pf]"); if (cm) { keep(); const k = cm.dataset.pf, v = cm.dataset.v; draft[k] = draft[k].includes(v) ? draft[k].filter(x => x !== v) : [...draft[k], v]; return draw(); }
     const ch = t.closest("[data-choose]"); if (ch) { const it = reg.get("pick:" + ch.dataset.k); if (it) draft.favorites[ch.dataset.choose] = pickSlim(it); return draw(); }
@@ -1532,7 +1628,7 @@ function openProfile(step = 1, first = false) {
 }
 
 applyMode(); updateCounts();
-window.addEventListener("hashchange", router);
+window.addEventListener("hashchange", () => { document.querySelector(".overlay")?.remove(); router(); });
 router();
 initAuth();
 })();
