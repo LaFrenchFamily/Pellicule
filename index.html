@@ -130,14 +130,14 @@ a.icon-btn { text-decoration: none; }
 
 /* Barre du bas sur mobile */
 .tabbar { display: none; }
-@media (max-width: 1080px) {
+@media (max-width: 1200px) {
   .nav { display: none; }
   .top-row { gap: 12px; flex-wrap: wrap; }
   .search { order: 3; flex-basis: 100%; max-width: none; }
   .top-row .icon-btn { margin-left: auto; }
   .top-row .icon-btn:not([hidden]) ~ .icon-btn { margin-left: 0; }
   .tabbar {
-    display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
     background: rgba(var(--surface-rgb), .94); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
     border-top: 1px solid var(--line);
     padding: 6px var(--gutter-r) calc(6px + env(safe-area-inset-bottom, 0px)) var(--gutter-l);
@@ -200,7 +200,7 @@ a.icon-btn { text-decoration: none; }
 /* ---------- Carte ---------- */
 .card { position: relative; display: grid; gap: 10px; min-width: 0; }
 .card-poster {
-  position: relative; aspect-ratio: 2 / 3; max-width: 100%; border-radius: var(--r-md); overflow: hidden; background: var(--surface);
+  position: relative; aspect-ratio: 2 / 3; max-width: 100%; border-radius: var(--r-md); overflow: hidden; background: #221d2c;
   box-shadow: 0 10px 30px -14px rgba(0,0,0,.8); transition: transform .3s var(--ease), box-shadow .3s var(--ease);
   display: block; text-decoration: none;
 }
@@ -424,7 +424,7 @@ a.person:hover b { color: var(--accent); }
 /* ---------- Toast ---------- */
 .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(20px); z-index: 90; background: var(--text); color: var(--ink); font-weight: 700; font-size: 14px; padding: 12px 18px; border-radius: var(--r-pill); box-shadow: var(--shadow); opacity: 0; pointer-events: none; transition: all .25s var(--ease); display: flex; gap: 8px; align-items: center; max-width: calc(100vw - 32px); }
 .toast.show { opacity: 1; transform: translateX(-50%); }
-@media (max-width: 1080px) { .toast { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); } }
+@media (max-width: 1200px) { .toast { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); } }
 
 .view { animation: rise .35s var(--ease); }
 @keyframes rise { from { opacity: .4; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -451,6 +451,45 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wr
 .fav-remind .fr-txt > span { font-size: 12.5px; color: var(--muted); }
 .fav-remind.add { border-style: dashed; }
 .fav-remind.add b { font-family: var(--font-body); font-weight: 700; font-size: 14px; }
+/* ---------- Mon avis, critiques, légendes ---------- */
+.rate-box { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px; display: grid; gap: 16px; }
+.rate-top { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.rate-big { display: flex; align-items: baseline; gap: 2px; min-width: 84px; }
+.rate-big b { font-family: var(--font-display); font-weight: 400; font-size: 58px; line-height: .9; color: var(--accent); font-variant-numeric: tabular-nums; }
+.rate-big span { color: var(--muted); font-weight: 700; }
+.rate-side { display: grid; gap: 8px; flex: 1; min-width: 0; }
+.rate-scale { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 5px; max-width: 460px; }
+.rate-scale button { height: 38px; border-radius: 10px; border: 1px solid var(--line); background: var(--ink); color: var(--muted); font-weight: 800; font-size: 14px; cursor: pointer; padding: 0; font-variant-numeric: tabular-nums; transition: background .15s var(--ease), color .15s var(--ease), transform .15s var(--ease); }
+.rate-scale button:hover { color: var(--text); border-color: var(--accent); transform: translateY(-1px); }
+.rate-scale button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.rate-word { font-size: 13px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.rate-box textarea { width: 100%; min-height: 92px; resize: vertical; border-radius: 12px; border: 1px solid var(--line); background: var(--ink); color: var(--text); padding: 12px 14px; font: inherit; font-size: 14.5px; line-height: 1.55; }
+.rate-box textarea:focus { outline: none; border-color: var(--accent); }
+.rate-foot { font-size: 12.5px; color: var(--muted); }
+.my-badge { position: absolute; right: 8px; bottom: 8px; min-width: 28px; height: 28px; padding: 0 6px; border-radius: 999px; display: grid; place-items: center; background: #f2b449; color: #1b1306; font-weight: 800; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,.4); }
+.rank-num { position: absolute; left: 8px; top: 8px; min-width: 30px; height: 30px; padding: 0 8px; border-radius: 8px; display: grid; place-items: center; background: rgba(13,11,18,.8); backdrop-filter: blur(6px); color: #f2b449; font-family: var(--font-display); font-size: 19px; line-height: 1; font-variant-numeric: tabular-nums; }
+.see-all { text-decoration: none; font-weight: 700; font-size: 14px; color: var(--accent); white-space: nowrap; display: inline-flex; gap: 6px; }
+.see-all:hover { text-decoration: underline; text-underline-offset: 3px; }
+.crit-scores { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.crit-score { display: grid; gap: 2px; min-width: 120px; padding: 12px 16px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+.crit-score b { font-family: var(--font-display); font-weight: 400; font-size: 34px; line-height: 1; }
+.crit-score b small { font-family: var(--font-body); font-size: 13px; color: var(--muted); font-weight: 700; margin-left: 2px; }
+.crit-score span { font-weight: 700; font-size: 13px; }
+.crit-score em { font-style: normal; font-size: 12px; color: var(--muted); }
+.reviews { display: grid; gap: 10px; margin-bottom: 14px; }
+.review { padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line); display: grid; gap: 6px; }
+.review header { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+.review .lang { font-size: 11px; font-weight: 700; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; }
+.review p { margin: 0; color: var(--text-2); font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+.crit-links { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; }
+.crit-links span { color: var(--muted); margin-right: 4px; }
+.crit-links a { display: inline-flex; gap: 6px; align-items: center; height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); text-decoration: none; font-weight: 600; }
+.crit-links a:hover { border-color: var(--accent); color: var(--accent); }
+.leg-tally { margin: 4px 0 18px; color: var(--muted); font-size: 14px; min-height: 1.5em; }
+.leg-tally b { color: var(--accent); }
+.leg-more { display: flex; justify-content: center; padding: 28px 0 8px; }
+.leg-end { color: var(--muted); margin: 0; }
+@media (max-width: 560px) { .rate-top { display: grid; gap: 10px; } .rate-scale { gap: 4px; } .rate-scale button { height: 34px; font-size: 13px; border-radius: 8px; } .rate-big b { font-size: 46px; } }
 /* ---------- Paramètres ---------- */
 .settings { max-width: 820px; display: grid; gap: 18px; padding-bottom: 24px; }
 .set-panel { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 24px; display: grid; gap: 16px; min-width: 0; }
@@ -505,6 +544,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wr
       <a href="#pellicules" data-nav="pellicules">Mes pellicules <span class="count" data-count="fav">0</span></a>
       <a href="#a-voir" data-nav="a-voir">À voir <span class="count" data-count="watch">0</span></a>
       <a href="#suggestions" data-nav="suggestions">Suggestions</a>
+      <a href="#legendes" data-nav="legendes">Légendes</a>
       <a href="#communaute" data-nav="communaute">Communauté</a>
     </nav>
     <div class="search" role="search">
@@ -533,6 +573,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wr
   <a href="#pellicules" data-nav="pellicules"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Pellicules<span class="count" data-count="fav" hidden>0</span></a>
   <a href="#a-voir" data-nav="a-voir"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>À voir<span class="count" data-count="watch" hidden>0</span></a>
   <a href="#suggestions" data-nav="suggestions"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.2 5.6L20 9.5l-4.5 3.8L17 19l-5-3.2L7 19l1.5-5.7L4 9.5l5.8-.9z"/></svg>Pour toi</a>
+  <a href="#legendes" data-nav="legendes"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/></svg>Légendes</a>
   <a href="#communaute" data-nav="communaute"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.6-5.5 6.5-5.5s5.5 2 6.5 5.5"/><circle cx="17" cy="9" r="2.8"/><path d="M16 14.6c2.6.1 4.6 1.9 5.5 5"/></svg>Membres</a>
 </nav>
 
@@ -636,6 +677,8 @@ const state = {
   q: "", filter: "all", searchSeq: 0,
 };
 state.saved.fav ||= []; state.saved.watch ||= [];
+state.saved.ratings ||= {};
+const myRating = (it) => state.saved.ratings[keyOf(it)] || null;
 const DEFAULT_TOKEN = "b135271cc7c6a363c4c10aec319b7de3"; // rempli à la publication (clé intégrée)
 const activeToken = () => (state.saved.token || DEFAULT_TOKEN || "").trim();
 const isLive = () => !!activeToken();
@@ -653,8 +696,15 @@ const slugify = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowe
 const hashHue = (s) => { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
 
 /* Affiche dessinée : un dégradé et un motif par titre */
+// Couleur HSL en hexadécimal (les motifs ajoutent une transparence en suffixe, ex. #rrggbb55).
+function hslHex(h, sat, l) {
+  sat /= 100; l /= 100; const k = (n) => (n + h / 30) % 12, a = sat * Math.min(l, 1 - l);
+  const f = (n) => Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1)))).toString(16).padStart(2, "0");
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
 function artStyle(it) {
-  const [a, b, c] = it.pal || [`hsl(${hashHue(it.title)} 40% 14%)`, `hsl(${hashHue(it.title)} 55% 38%)`, `hsl(${(hashHue(it.title)+40)%360} 80% 75%)`];
+  const hu = hashHue(it.title || "?");
+  const [a, b, c] = it.pal || [hslHex(hu, 40, 14), hslHex(hu, 55, 38), hslHex((hu + 40) % 360, 80, 75)];
   switch (it.m ?? (hashHue(it.title) % 5)) {
     case 0: return `background: radial-gradient(circle at 50% 36%, ${c} 0 17%, transparent 17.6%), radial-gradient(circle at 50% 36%, ${c}55 0 30%, transparent 46%), linear-gradient(180deg, ${b} 0%, ${a} 70%);`;
     case 1: return `background: repeating-radial-gradient(circle at 72% 28%, ${c}66 0 1.5px, transparent 2.5px 18px), radial-gradient(circle at 72% 28%, ${b}, transparent 60%), ${a};`;
@@ -775,6 +825,7 @@ function norm(r, forcedType) {
     overview: r.overview || "", genre_ids: ids, anime: ids.includes(16) && r.original_language === "ja",
   };
 }
+const normReview = (x) => ({ author: x.author_details?.name || x.author || "Anonyme", rating: x.author_details?.rating || null, text: (x.content || "").replace(/\r?\n+/g, " ").replace(/[*_#>]/g, "").trim(), url: x.url, date: (x.created_at || "").slice(0, 10) });
 const onlyMT = (arr) => arr.filter(r => r.media_type === "movie" || r.media_type === "tv");
 
 const Live = {
@@ -783,14 +834,15 @@ const Live = {
       tmdb("/trending/all/week"), tmdb("/movie/popular"), tmdb("/tv/popular"),
       tmdb("/discover/tv", { with_genres: 16, with_original_language: "ja", sort_by: "popularity.desc", "vote_count.gte": 200 }),
     ]);
-    return { trending: onlyMT(tr.results).map(r => norm(r)), movies: mv.results.map(r => norm(r, "movie")), tv: tv.results.map(r => norm(r, "tv")).filter(x => !x.anime), anime: an.results.map(r => norm(r, "tv")) };
+    const legends = await this.legends(1).catch(() => []);
+    return { trending: onlyMT(tr.results).map(r => norm(r)), movies: mv.results.map(r => norm(r, "movie")), tv: tv.results.map(r => norm(r, "tv")).filter(x => !x.anime), anime: an.results.map(r => norm(r, "tv")), legends };
   },
   async search(q) {
     const r = await tmdb("/search/multi", { query: q, include_adult: false });
     return onlyMT(r.results).map(x => norm(x));
   },
   async details(type, id) {
-    const r = await tmdb(`/${type}/${id}`, { append_to_response: "credits,videos,recommendations,watch/providers", include_video_language: "fr,en,null" });
+    const r = await tmdb(`/${type}/${id}`, { append_to_response: "credits,videos,recommendations,watch/providers,reviews,external_ids", include_video_language: "fr,en,null" });
     const it = norm(r, type);
     it.genres = (r.genres || []).map(g => g.name);
     it.tagline = r.tagline || "";
@@ -807,7 +859,19 @@ const Live = {
     it.similar = (r.recommendations?.results || []).slice(0, 14).map(x => norm(x, x.media_type || type));
     it.status = r.status || "";
     it.countries = (r.production_countries || r.origin_country || []).map(c => c.name || c).slice(0, 2).join(", ");
+    it.votes = r.vote_count || 0;
+    it.imdb = r.external_ids?.imdb_id || r.imdb_id || "";
+    it.reviews = (r.reviews?.results || []).map(normReview);
     return it;
+  },
+  async reviews(type, id) {
+    const r = await tmdb(`/${type}/${id}/reviews`, { language: "en-US" });
+    return (r.results || []).map(x => ({ ...normReview(x), en: true }));
+  },
+  async legends(page, mode) {
+    const p = mode === "top" ? { sort_by: "vote_average.desc", "vote_count.gte": 4000 } : { sort_by: "vote_count.desc" };
+    const r = await tmdb("/discover/movie", { ...p, page, include_adult: false });
+    return r.results.map(x => norm(x, "movie"));
   },
   async person(id) {
     const r = await tmdb(`/person/${id}`, { append_to_response: "combined_credits" });
@@ -869,8 +933,10 @@ const Demo = {
   },
   async home() {
     const by = (r) => [...DEMO].sort((a, b) => b.rating - a.rating).filter(r);
-    return { trending: ["d1","d16","d11","d8","d13","d6","d18","d12","d2","d5"].map(i => DEMO_MAP[i]), movies: by(d => d.type === "movie" && !d.anime), tv: by(d => d.type === "tv" && !d.anime), anime: by(d => d.anime) };
+    return { trending: ["d1","d16","d11","d8","d13","d6","d18","d12","d2","d5"].map(i => DEMO_MAP[i]), movies: by(d => d.type === "movie" && !d.anime), tv: by(d => d.type === "tv" && !d.anime), anime: by(d => d.anime), legends: by(d => d.type === "movie") };
   },
+  async legends(page) { return page === 1 ? [...DEMO].filter(d => d.type === "movie").sort((a, b) => b.rating - a.rating) : []; },
+  async reviews() { return []; },
   async search(q) {
     const n = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
     const t = n(q);
@@ -880,7 +946,7 @@ const Demo = {
     const d = DEMO_MAP[id]; if (!d) throw new Error("Titre introuvable dans le catalogue de démo.");
     const similar = DEMO.filter(x => x.id !== d.id).map(x => ({ x, s: x.genres.filter(g => d.genres.includes(g)).length * 2 + (x.anime === d.anime ? 1 : 0) + (x.by === d.by ? 3 : 0) }))
       .sort((a, b) => b.s - a.s).slice(0, 10).map(o => o.x);
-    return { ...d, trailer: { search: `${d.original || d.title} bande annonce` }, similar, countries: "" };
+    return { ...d, trailer: { search: `${d.original || d.title} bande annonce` }, similar, countries: "", reviews: [] };
   },
   async person(id) {
     const credits = []; let name = "";
@@ -914,7 +980,7 @@ function cardHTML(it, opts = {}) {
   const fav = inList("fav", it), watch = inList("watch", it);
   const why = opts.why && it.why?.length ? `<span class="why" title="Parce que tu aimes ${esc(it.why.join(", "))}">Car tu aimes ${esc(it.why[0])}${it.why.length > 1 ? ` +${it.why.length - 1}` : ""}</span>` : "";
   return `<article class="card" data-key="${esc(keyOf(it))}">
-    <a class="card-poster" href="${route(it)}" aria-label="${esc(it.title)}">${posterHTML(it)}<span class="badge k-${kindOf(it)}">${kindLabel(it)}</span></a>
+    <a class="card-poster" href="${route(it)}" aria-label="${esc(it.title)}">${posterHTML(it)}<span class="badge k-${kindOf(it)}">${kindLabel(it)}</span>${opts.rank ? `<span class="rank-num">${opts.rank}</span>` : ""}${myRating(it)?.score ? `<span class="my-badge" title="Ma note : ${myRating(it).score}/10">${myRating(it).score}</span>` : ""}</a>
     <div class="quick ${fav || watch ? "has-on" : ""}">
       <button class="qbtn fav ${fav ? "on" : ""}" data-act="fav" aria-pressed="${fav}" aria-label="${fav ? "Retirer de Mes pellicules" : "Ajouter à Mes pellicules"}">${I.heart(fav)}</button>
       ${opts.folderBtn && fav ? `<button class="qbtn" data-folders aria-label="Ranger dans un dossier">${I.folder}</button>` : ""}
@@ -933,11 +999,11 @@ function cardHTML(it, opts = {}) {
 const reg = new Map();
 const remember = (list) => { list.forEach(it => reg.set(keyOf(it), it)); return list; };
 
-function row(title, sub, items) {
+function row(title, sub, items, link, opts = {}) {
   if (!items.length) return "";
   remember(items);
-  return `<section class="section wrap"><div class="section-head"><div><h2>${title}</h2>${sub ? `<p>${sub}</p>` : ""}</div></div>
-    <div class="row-scroll">${items.map(i => cardHTML(i)).join("")}</div></section>`;
+  return `<section class="section wrap"><div class="section-head"><div><h2>${title}</h2>${sub ? `<p>${sub}</p>` : ""}</div>${link ? `<a class="see-all" href="${link[0]}">${link[1]} <span aria-hidden="true">→</span></a>` : ""}</div>
+    <div class="row-scroll">${items.map((i, n) => cardHTML(i, { ...opts, rank: opts.rank ? n + 1 : 0 })).join("")}</div></section>`;
 }
 function skeletonRows(n = 3) {
   return Array.from({ length: n }, () => `<section class="section wrap"><div class="skel" style="width:220px;height:30px;margin-bottom:16px"></div>
@@ -972,6 +1038,7 @@ async function viewHome() {
     app.innerHTML = `<div class="view">${heroHTML(hero)}
       <div id="forYou"></div>
       ${row("Tendances <em>de la semaine</em>", "Ce que tout le monde regarde en ce moment", d.trending.filter(x => x !== hero))}
+      ${row("Les <em>légendes</em>", "Les films les plus vus au monde", (d.legends || []).slice(0, 20), ["#legendes", "Voir le top 1000"], { rank: true })}
       ${row("Films", "Les plus populaires", d.movies)}
       ${row("Séries", "À dévorer saison après saison", d.tv)}
       ${row("Animés", "Le meilleur de l'animation japonaise", d.anime)}</div>`;
@@ -1119,19 +1186,23 @@ function viewList(list) {
 async function viewSuggestions() {
   const pf = [state.profile?.favorites?.movie, state.profile?.favorites?.show].filter(f => f && !state.saved.fav.some(x => x.key === keyOf(f)));
   const favs = [...state.saved.fav, ...pf];
-  const head = `<div class="wrap page-head"><div><h1>Pour <em>toi</em></h1><p>${favs.length ? `D'après tes ${favs.length} pellicule${favs.length > 1 ? "s" : ""} : ${esc(favs.slice(0, 3).map(f => f.title).join(", "))}${favs.length > 3 ? "…" : ""}` : "Des recommandations basées sur tes favoris."}</p></div>${favs.length ? chipsHTML() : ""}</div>`;
+  const head = `<div class="wrap page-head"><div><h1>Pour <em>toi</em></h1><p>Des titres choisis d'après ton profil et tes pellicules.</p></div>${favs.length ? chipsHTML() : ""}</div>`;
+  const secHead = `<div class="section-head"><div><h2>D'après <em>tes pellicules</em></h2><p>${favs.length ? `Parce que tu aimes ${esc(favs.slice(0, 3).map(f => f.title).join(", "))}${favs.length > 3 ? "…" : ""}` : ""}</p></div></div>`;
+  app.innerHTML = `<div class="view">${head}<div id="forYou"></div><section class="section wrap" id="sugBox">${favs.length ? `${secHead}<div class="grid">${Array.from({ length: 10 }, () => `<div class="skel" style="aspect-ratio:2/3"></div>`).join("")}</div>` : ""}</section></div>`;
+  fillForYou();
+  const box = $("#sugBox");
   if (!favs.length) {
-    app.innerHTML = `<div class="view">${head}<div class="wrap"><div class="empty"><div class="ico">${I.spark}</div><h3>Dis-nous ce que tu aimes</h3><p>Ajoute quelques favoris et cette page te proposera des titres qui leur ressemblent.</p><a class="btn btn-primary" href="#accueil">Choisir des favoris</a></div></div></div>`;
+    box.innerHTML = `<div class="empty"><div class="ico">${I.spark}</div><h3>Dis-nous ce que tu aimes</h3><p>Ajoute quelques titres à tes pellicules et cette page te proposera des titres qui leur ressemblent.</p><a class="btn btn-primary" href="#accueil">Choisir des titres</a></div>`;
     return;
   }
-  app.innerHTML = `<div class="view">${head}<div class="wrap"><div class="grid">${Array.from({ length: 10 }, () => `<div class="skel" style="aspect-ratio:2/3"></div>`).join("")}</div></div></div>`;
   try {
     let res = await src().suggestions(favs);
     if (isLive() && !res.length && favs.some(f => String(f.id).startsWith("d"))) throw new Error("Tes favoris actuels viennent du catalogue de démo. Ajoute des titres depuis TMDB pour obtenir des suggestions.");
     remember(res);
     const shown = res.filter(passFilter);
-    app.innerHTML = `<div class="view">${head}<div class="wrap">${shown.length ? `<div class="grid">${shown.map(i => cardHTML(i, { why: true })).join("")}</div>` : `<div class="empty"><h3>Pas de suggestion ici</h3><p>Essaie un autre filtre ou ajoute d'autres favoris.</p></div>`}</div></div>`;
-  } catch (e) { app.innerHTML = errorBox(e.message); }
+    if (!$("#sugBox")) return;
+    $("#sugBox").innerHTML = secHead + (shown.length ? `<div class="grid">${shown.map(i => cardHTML(i, { why: true })).join("")}</div>` : `<div class="empty"><h3>Pas de suggestion ici</h3><p>Essaie un autre filtre ou ajoute d'autres titres à tes pellicules.</p></div>`);
+  } catch (e) { if ($("#sugBox")) $("#sugBox").innerHTML = errorBox(e.message).replace('<div class="wrap">', "<div>"); }
 }
 
 function ring(r) {
@@ -1218,7 +1289,9 @@ async function viewDetail(type, id) {
       <div class="wrap detail-body">
         <div style="display:grid;grid-template-columns:minmax(0,1fr);gap:36px;min-width:0">
           <section class="block"><h2>Synopsis</h2><p class="syn-long">${esc(it.overview || "Pas encore de synopsis en français pour ce titre.")}</p></section>
+          ${myRateHTML(it)}
           <section class="block" id="trailerSec"><h2>Bande-annonce</h2>${trailerHTML(it)}</section>
+          ${critiquesHTML(it)}
           ${it.cast?.length ? `<section class="block"><h2>Casting</h2><div class="cast">${it.cast.map(([n, r, img, pid]) => `<a class="person" href="#personne-${esc(pid || slugify(n))}" aria-label="Voir les films de ${esc(n)}"><div class="avatar" style="${img ? "" : `background:linear-gradient(140deg,hsl(${hashHue(n)} 45% 32%),hsl(${(hashHue(n)+50)%360} 50% 18%))`}">${img ? `<img src="${esc(img)}" alt="" loading="lazy">` : esc(n.split(" ").map(w => w[0]).slice(0, 2).join(""))}</div><b>${esc(n)}</b><small>${esc(r)}</small></a>`).join("")}</div></section>` : ""}
         </div>
         <aside style="display:grid;gap:32px;align-content:start;min-width:0">${it.providers ? `<section class="block" id="watchSec"><h2>Où regarder en France</h2>${providersHTML(it)}</section>` : ""}<section class="block"><h2>Infos</h2><dl class="facts">${facts.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl></section></aside>
@@ -1226,6 +1299,7 @@ async function viewDetail(type, id) {
       ${row("Dans <em>le même esprit</em>", "", it.similar || [])}
     </div>`;
     window.scrollTo({ top: 0 });
+    fillCritiques(it);
   } catch (e) { app.innerHTML = errorBox(e.message); }
 }
 
@@ -1258,6 +1332,161 @@ async function viewPerson(id) {
     </div>`;
   } catch (e) { app.innerHTML = errorBox(e.message); }
 }
+
+/* ================= Mon avis : note sur 10 et notes perso ================= */
+function setRating(it, patch) {
+  const k = keyOf(it); const cur = state.saved.ratings[k] || {};
+  const item = slim(it); delete item.added;
+  const next = { ...cur, ...patch, item, updated: Date.now() };
+  const empty = !next.score && !(next.note || "").trim();
+  if (empty) delete state.saved.ratings[k]; else state.saved.ratings[k] = next;
+  save(); cloudRating(k, empty ? null : next);
+}
+function cloudRating(k, r) {
+  if (!sb || !user) return;
+  const q = r ? sb.from("ratings").upsert({ user_id: user.id, item_key: k, item: r.item, score: r.score || null, note: (r.note || "").trim() || null, updated_at: new Date(r.updated).toISOString() })
+    : sb.from("ratings").delete().eq("user_id", user.id).eq("item_key", k);
+  q.then(({ error }) => error && toast("Pas pu enregistrer ta note en ligne. Réessaie.", I.info));
+}
+async function syncRatings() {
+  const { data, error } = await sb.from("ratings").select("item_key,item,score,note,updated_at");
+  if (error) return;
+  const cloud = {};
+  data.forEach(r => { cloud[r.item_key] = { item: r.item, score: r.score, note: r.note || "", updated: Date.parse(r.updated_at) }; });
+  const up = [];
+  for (const [k, r] of Object.entries(state.saved.ratings)) if (!cloud[k]) { cloud[k] = r; up.push({ user_id: user.id, item_key: k, item: r.item, score: r.score || null, note: (r.note || "").trim() || null, updated_at: new Date(r.updated || Date.now()).toISOString() }); }
+  state.saved.ratings = cloud;
+  if (up.length) await sb.from("ratings").upsert(up);
+}
+const RATE_WORDS = ["", "Nul", "Très mauvais", "Mauvais", "Pas terrible", "Moyen", "Correct", "Bien", "Très bien", "Excellent", "Chef-d'œuvre"];
+function rateScaleHTML(it) {
+  const sc = myRating(it)?.score || 0;
+  return `<div class="rate-big"><b>${sc || "–"}</b><span>/10</span></div>
+    <div class="rate-side"><div class="rate-scale" role="radiogroup" aria-label="Ma note sur 10">${Array.from({ length: 10 }, (_, i) => i + 1).map(n => `<button role="radio" aria-checked="${n === sc}" class="${n <= sc ? "on" : ""}" data-rate="${n}" aria-label="${n} sur 10, ${RATE_WORDS[n]}" title="${RATE_WORDS[n]}">${n}</button>`).join("")}</div>
+    <span class="rate-word">${sc ? `${RATE_WORDS[sc]} · <button class="link-btn" data-rate="0">Effacer</button>` : "Touche un chiffre pour noter"}</span></div>`;
+}
+function myRateHTML(it) {
+  const r = myRating(it);
+  return `<section class="block" id="myRate" data-key="${esc(keyOf(it))}"><h2>Mon avis</h2><div class="rate-box">
+    <div class="rate-top" id="rateScale">${rateScaleHTML(it)}</div>
+    <div class="field"><label for="myNote">Mes notes personnelles</label><textarea id="myNote" maxlength="4000" rows="3" placeholder="Ce que tu en as pensé, avec qui tu l'as vu, tes scènes préférées…">${esc(r?.note || "")}</textarea></div>
+    <div class="rate-foot"><span id="noteState">${sb && user ? "Enregistré dans ton compte, visible par toi seul." : "Enregistré dans ce navigateur. Crée un compte pour le retrouver partout."}</span></div>
+  </div></section>`;
+}
+let noteTmr;
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-rate]"); if (!b) return;
+  const box = b.closest("#myRate"); const it = reg.get(box?.dataset.key); if (!it) return;
+  const n = +b.dataset.rate; const cur = myRating(it)?.score || 0;
+  setRating(it, { score: n && n !== cur ? n : null });
+  $("#rateScale").innerHTML = rateScaleHTML(it);
+  $(`#rateScale [data-rate="${myRating(it)?.score || 1}"]`)?.focus();
+  const sc = myRating(it)?.score;
+  toast(sc ? `Ta note : ${sc}/10` : "Note effacée", I.star);
+});
+document.addEventListener("input", (e) => {
+  if (e.target.id !== "myNote") return;
+  const it = reg.get(e.target.closest("#myRate")?.dataset.key); if (!it) return;
+  const st = $("#noteState"); st.textContent = "…";
+  clearTimeout(noteTmr);
+  noteTmr = setTimeout(() => { setRating(it, { note: e.target.value }); st.textContent = "Notes enregistrées ✓"; }, 700);
+});
+
+/* ================= Critiques ================= */
+const OMDB_KEY = ""; // optionnel, rempli à la publication (notes IMDb, Rotten Tomatoes, Metacritic)
+function critiquesHTML(it) {
+  const q = encodeURIComponent(it.title), qo = encodeURIComponent(it.original || it.title);
+  const links = [
+    ["IMDb", it.imdb ? `https://www.imdb.com/title/${it.imdb}/reviews/` : `https://www.imdb.com/find/?q=${qo}`],
+    ["AlloCiné", `https://www.allocine.fr/rechercher/?q=${q}`],
+    ["SensCritique", `https://www.senscritique.com/search?query=${q}`],
+    ["Rotten Tomatoes", `https://www.rottentomatoes.com/search?search=${qo}`],
+    it.type === "movie" ? ["Letterboxd", isLive() ? `https://letterboxd.com/tmdb/${it.id}/` : `https://letterboxd.com/search/${qo}/`] : null,
+    it.anime ? ["MyAnimeList", `https://myanimelist.net/search/all?q=${qo}`] : null,
+  ].filter(Boolean);
+  const votes = it.votes ? `${it.votes.toLocaleString("fr-FR")} votes` : isLive() ? "" : "démo";
+  return `<section class="block" id="critSec"><h2>Critiques</h2>
+    <div class="crit-scores" id="critScores"><div class="crit-score"><b>${fmtRating(it.rating)}<small>/10</small></b><span>TMDB</span>${votes ? `<em>${votes}</em>` : ""}</div></div>
+    <div id="critReviews">${reviewsHTML(it.reviews || [])}</div>
+    <div class="crit-links"><span>Lire les critiques sur</span>${links.map(([n, u]) => `<a href="${u}" target="_blank" rel="noopener">${n} ${I.ext}</a>`).join("")}</div>
+  </section>`;
+}
+function reviewsHTML(list) {
+  if (!list.length) return "";
+  return `<div class="reviews">${list.slice(0, 3).map(r => `<article class="review"><header><b>${esc(r.author)}</b>${r.rating ? `<span class="stars">${I.star}${fmtRating(r.rating)}</span>` : ""}${r.en ? `<span class="lang">en anglais</span>` : ""}</header>
+    <p>${esc(r.text.length > 360 ? r.text.slice(0, 360).replace(/\s+\S*$/, "") + "…" : r.text)}</p>${r.url ? `<a class="link-btn" href="${esc(r.url)}" target="_blank" rel="noopener">Lire l'avis complet</a>` : ""}</article>`).join("")}</div>`;
+}
+async function fillCritiques(it) {
+  const key = keyOf(it);
+  const still = () => $("#critSec") && $("#myRate")?.dataset.key === key;
+  if (isLive() && !(it.reviews || []).length) {
+    try { const en = await src().reviews(it.type, it.id); if (still() && en.length) $("#critReviews").innerHTML = reviewsHTML(en); } catch {}
+  }
+  if (OMDB_KEY && it.imdb) {
+    try {
+      const r = await (await fetch(`https://www.omdbapi.com/?i=${encodeURIComponent(it.imdb)}&apikey=${OMDB_KEY}`)).json();
+      const names = { "Internet Movie Database": "IMDb", "Rotten Tomatoes": "Rotten Tomatoes", "Metacritic": "Metacritic" };
+      const extra = (r.Ratings || []).filter(x => names[x.Source]).map(x => {
+        const [v, max] = x.Value.includes("%") ? [x.Value.replace("%", ""), "%"] : x.Value.split("/").map((y, i) => i ? "/" + y : y.replace(".", ","));
+        return `<div class="crit-score"><b>${esc(v)}<small>${esc(max)}</small></b><span>${names[x.Source]}</span>${x.Source === "Internet Movie Database" && r.imdbVotes ? `<em>${esc(r.imdbVotes.replace(/,/g, " "))} votes</em>` : ""}</div>`;
+      }).join("");
+      if (still() && extra) $("#critScores").insertAdjacentHTML("beforeend", extra);
+    } catch {}
+  }
+}
+
+/* ================= Légendes ================= */
+const LEG_MAX = 1000;
+state.legends = { most: { items: [], page: 0, done: false }, top: { items: [], page: 0, done: false } };
+state.legMode = "most";
+const seenIt = (it) => inList("fav", it) || !!myRating(it)?.score;
+function legTally() {
+  const L = state.legends[state.legMode]; const n = L.items.filter(seenIt).length;
+  return L.items.length ? `Tu en as vu <b>${n}</b> sur les ${L.items.length} affichés${L.done ? "" : ` (sur ${LEG_MAX})`}. Un titre compte comme vu s'il est dans tes pellicules ou si tu l'as noté.` : "";
+}
+async function loadLegends(pages = 2) {
+  const mode = state.legMode; const L = state.legends[mode];
+  if (L.loading || L.done) return;
+  L.loading = true; const btn = $("#legMore"); if (btn) { btn.disabled = true; btn.textContent = "Chargement…"; }
+  try {
+    for (let i = 0; i < pages && !L.done; i++) {
+      const res = await src().legends(L.page + 1, mode);
+      L.page++;
+      const have = new Set(L.items.map(keyOf));
+      const fresh = res.filter(x => !have.has(keyOf(x))).slice(0, LEG_MAX - L.items.length);
+      const start = L.items.length; L.items.push(...fresh); remember(fresh);
+      if (!res.length || L.items.length >= LEG_MAX || L.page >= 500) L.done = true;
+      if (state.legMode === mode && $("#legGrid")) $("#legGrid").insertAdjacentHTML("beforeend", fresh.map((it, j) => cardHTML(it, { rank: start + j + 1 })).join(""));
+    }
+  } catch (e) { toast("Impossible de charger la suite pour le moment.", I.info); }
+  L.loading = false;
+  if (state.legMode !== mode || !$("#legGrid")) return;
+  $("#legTally").innerHTML = legTally();
+  const more = $("#legMoreWrap");
+  more.innerHTML = L.done ? `<p class="leg-end">${L.items.length >= LEG_MAX ? "Tu as atteint le 1000ᵉ. Chapeau !" : isLive() ? "C'est la fin de la liste." : "Le mode démo ne contient que quelques films."}</p>` : `<button class="btn btn-ghost" id="legMore">Voir les 40 suivants</button>`;
+}
+let legObs;
+function viewLegends() {
+  const L = state.legends[state.legMode];
+  const modes = [["most", "Les plus vus"], ["top", "Les mieux notés"]];
+  app.innerHTML = `<div class="view">
+    <div class="wrap page-head"><div><h1>Les <em>légendes</em></h1><p>${state.legMode === "most" ? "Les 1000 films les plus vus et votés au monde, du plus regardé au moins regardé." : "Les 1000 films les mieux notés, parmi ceux qui ont reçu au moins 4 000 votes."}</p></div>
+      <div class="chips" role="group" aria-label="Classement">${modes.map(([k, l]) => `<button class="chip" data-legmode="${k}" aria-pressed="${state.legMode === k}">${l}</button>`).join("")}</div></div>
+    <div class="wrap"><p class="leg-tally" id="legTally">${legTally()}</p>
+      <div class="grid" id="legGrid">${L.items.map((it, i) => cardHTML(it, { rank: i + 1 })).join("")}</div>
+      <div class="leg-more" id="legMoreWrap">${L.done ? "" : `<button class="btn btn-ghost" id="legMore">Voir les 40 suivants</button>`}</div></div>
+  </div>`;
+  if (!L.items.length) { $("#legGrid").innerHTML = ""; loadLegends(2); }
+  legObs?.disconnect();
+  if ("IntersectionObserver" in window) {
+    legObs = new IntersectionObserver((en) => { if (en.some(x => x.isIntersecting) && location.hash === "#legendes" && state.legends[state.legMode].items.length) loadLegends(2); }, { rootMargin: "600px" });
+    legObs.observe($("#legMoreWrap"));
+  }
+}
+document.addEventListener("click", (e) => {
+  if (e.target.closest("#legMore")) return loadLegends(2);
+  const m = e.target.closest("[data-legmode]"); if (m) { state.legMode = m.dataset.legmode; viewLegends(); }
+});
 
 /* ================= Communauté ================= */
 async function setPublic(on) {
@@ -1349,6 +1578,7 @@ function router() {
     case "a-voir": return viewList("watch");
     case "suggestions": return viewSuggestions();
     case "communaute": return viewCommunity();
+    case "legendes": return viewLegends();
     case "parametres": return viewSettings();
     case "recherche": return viewSearch();
     default: return viewHome();
@@ -1485,6 +1715,7 @@ async function syncFolders() {
 }
 async function syncOnLogin() {
   await syncFolders();
+  await syncRatings();
   const { data, error } = await sb.from("list_items").select("list,item_key,item,added_at").order("added_at", { ascending: false });
   if (error) { toast("Impossible de charger tes listes.", I.info); return; }
   const cloud = { fav: [], watch: [] };
@@ -1610,7 +1841,7 @@ mqLight.addEventListener?.("change", () => { if (getTheme() === "auto") applyThe
 
 /* ================= Paramètres ================= */
 async function signOut() {
-  await sb.auth.signOut(); user = null; state.saved.fav = []; state.saved.watch = []; state.saved.folders = []; state.folder = "all"; state.profile = null; state.saved.profile = null;
+  await sb.auth.signOut(); user = null; state.saved.ratings = {}; state.saved.fav = []; state.saved.watch = []; state.saved.folders = []; state.folder = "all"; state.profile = null; state.saved.profile = null;
   save(); updateCounts(); renderAcct(); toast("Déconnecté", I.info); rerender();
 }
 const themePrevHTML = (k) => {
