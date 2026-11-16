@@ -335,6 +335,28 @@ a.person:hover b { color: var(--accent); }
 
 /* ---------- Réglages (fenêtre) ---------- */
 .overlay { position: fixed; inset: 0; z-index: 80; background: rgba(5,4,8,.7); backdrop-filter: blur(6px); display: grid; place-items: center; padding: 16px; animation: fade .2s var(--ease); }
+.sheet.wide { width: min(680px, 100%); }
+.steps-dots { display: flex; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.steps-dots i { width: 28px; height: 4px; border-radius: 4px; background: var(--surface-2); }
+.steps-dots i.on { background: var(--accent); }
+.pf-q { display: grid; gap: 10px; }
+.pf-q > b { font-size: 14px; }
+.pf-q > small { color: var(--muted); margin-top: -6px; }
+.pick-list { display: grid; gap: 6px; }
+.pick-row { display: flex; align-items: center; gap: 12px; padding: 6px; border-radius: 12px; border: 1px solid var(--line); background: var(--ink); color: var(--text); font: inherit; cursor: pointer; text-align: left; width: 100%; }
+.pick-row:hover { border-color: var(--accent); }
+.pick-row .mini { width: 36px; aspect-ratio: 2/3; border-radius: 6px; overflow: hidden; position: relative; flex: none; background: var(--surface-2); }
+.pick-row .mini img { width: 100%; height: 100%; object-fit: cover; }
+.pick-row .mini .art { padding: 0; } .pick-row .mini .art > * { display: none; }
+.pick-row b { font-size: 14px; display: block; } .pick-row small { color: var(--muted); font-size: 12px; }
+.picked { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 12px; background: rgba(242,180,73,.10); border: 1px solid rgba(242,180,73,.4); }
+.picked .mini { width: 40px; aspect-ratio: 2/3; border-radius: 6px; overflow: hidden; position: relative; flex: none; }
+.picked .mini img { width: 100%; height: 100%; object-fit: cover; } .picked .mini .art { padding: 0; } .picked .mini .art > * { display: none; }
+.picked div { flex: 1; min-width: 0; } .picked b { display: block; }
+.prov-logos a.mine { box-shadow: 0 0 0 2px var(--accent); }
+.prov-mine { font-size: 13px; color: var(--accent); font-weight: 700; margin: 0 0 12px; display: flex; gap: 6px; align-items: center; }
+.profile-sum { display: grid; gap: 6px; font-size: 13.5px; color: var(--muted); }
+.profile-sum b { color: var(--text); font-weight: 600; }
 .sheet { width: min(560px, 100%); max-height: calc(100vh - 32px); overflow: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); padding: 28px; display: grid; gap: 18px; }
 .sheet-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
 .sheet h2 { font-family: var(--font-display); font-weight: 400; font-size: 36px; margin: 0; line-height: 1; }
@@ -666,7 +688,8 @@ const Live = {
     const fr = r["watch/providers"]?.results?.FR;
     it.providers = fr ? { link: fr.link, flatrate: fr.flatrate || [], rent: fr.rent || [], buy: fr.buy || [], free: [...(fr.free || []), ...(fr.ads || [])] } : { none: true };
     const vids = (r.videos?.results || []).filter(v => v.site === "YouTube");
-    const pick = vids.find(v => v.type === "Trailer" && v.iso_639_1 === "fr") || vids.find(v => v.type === "Trailer") || vids.find(v => v.type === "Teaser") || vids[0];
+    const wantVO = state.profile?.lang === "VOSTFR";
+    const pick = (wantVO ? vids.find(v => v.type === "Trailer" && v.iso_639_1 !== "fr") : null) || vids.find(v => v.type === "Trailer" && v.iso_639_1 === "fr") || vids.find(v => v.type === "Trailer") || vids.find(v => v.type === "Teaser") || vids[0];
     it.trailer = pick ? { key: pick.key, name: pick.name, lang: pick.iso_639_1 } : null;
     it.similar = (r.recommendations?.results || []).slice(0, 14).map(x => norm(x, x.media_type || type));
     it.status = r.status || "";
@@ -690,6 +713,22 @@ const Live = {
       dept: { Acting: "Acteur·rice", Directing: "Réalisation", Writing: "Scénario", Production: "Production", Sound: "Musique" }[r.known_for_department] || r.known_for_department || "",
       credits: [...seen.values()] };
   },
+  async forYou(p) {
+    const kinds = p.kinds?.length ? p.kinds : ["movie", "tv"];
+    const g = (p.genres || []).filter(x => GENRE_IDS[x]);
+    const mIds = [...new Set(g.flatMap(x => GENRE_IDS[x]).filter(id => MOVIE_GENRES.has(id)))];
+    const tIds = [...new Set(g.flatMap(x => GENRE_IDS[x]).filter(id => TV_GENRES.has(id)))];
+    const reqs = [];
+    if (kinds.includes("movie") && (mIds.length || !g.length)) reqs.push(tmdb("/discover/movie", { with_genres: mIds.join("|"), sort_by: "popularity.desc", "vote_count.gte": 300 }).then(r => r.results.map(x => norm(x, "movie"))));
+    if (kinds.includes("tv") && (tIds.length || !g.length)) reqs.push(tmdb("/discover/tv", { with_genres: tIds.join("|"), without_genres: "10767,10763,10764", sort_by: "popularity.desc", "vote_count.gte": 200 }).then(r => r.results.map(x => norm(x, "tv")).filter(x => !x.anime)));
+    if (kinds.includes("anime")) reqs.push(tmdb("/discover/tv", { with_genres: "16", with_original_language: "ja", sort_by: "popularity.desc", "vote_count.gte": 100 }).then(r => r.results.map(x => norm(x, "tv"))));
+    const favT = [p.favorites?.movie, p.favorites?.show].filter(Boolean);
+    for (const f of favT) reqs.push(tmdb(`/${f.type}/${f.id}/recommendations`).then(r => r.results.map(x => norm(x, x.media_type || f.type))).catch(() => []));
+    const lists = await Promise.all(reqs.map(r => r.catch(() => [])));
+    const out = [], seen = new Set(state.saved.fav.map(x => x.key));
+    for (let i = 0; out.length < 24 && i < 20; i++) for (const l of lists) { const it = l[i]; if (it && !seen.has(keyOf(it))) { seen.add(keyOf(it)); out.push(it); } }
+    return out;
+  },
   async suggestions(favs) {
     const seeds = favs.filter(f => !String(f.id).startsWith("d")).slice(0, 8);
     const lists = await Promise.all(seeds.map(f => tmdb(`/${f.type}/${f.id}/recommendations`).then(r => ({ f, res: r.results })).catch(() => ({ f, res: [] }))));
@@ -706,7 +745,15 @@ const Live = {
 };
 
 /* ================= Source : démo ================= */
+const MOVIE_GENRES = new Set([28, 12, 16, 35, 80, 99, 18, 10751, 14, 36, 27, 10402, 9648, 10749, 878, 53, 10752, 37]);
+const TV_GENRES = new Set([10759, 16, 35, 80, 99, 18, 10751, 10762, 9648, 10763, 10764, 10765, 10766, 10767, 10768, 37]);
 const Demo = {
+  async forYou(p) {
+    const g = (p.genres || []).map(normName); const kinds = p.kinds?.length ? p.kinds : ["movie", "tv", "anime"];
+    const favKeys = new Set(state.saved.fav.map(x => x.key));
+    return DEMO.filter(d => !favKeys.has(keyOf(d)) && kinds.includes(d.anime ? "anime" : d.type))
+      .map(d => ({ d, s: d.genres.filter(x => g.includes(normName(x))).length * 2 + d.rating / 10 })).filter(o => !g.length || o.s >= 2).sort((a, b) => b.s - a.s).map(o => o.d);
+  },
   async home() {
     const by = (r) => [...DEMO].sort((a, b) => b.rating - a.rating).filter(r);
     return { trending: ["d1","d16","d11","d8","d13","d6","d18","d12","d2","d5"].map(i => DEMO_MAP[i]), movies: by(d => d.type === "movie" && !d.anime), tv: by(d => d.type === "tv" && !d.anime), anime: by(d => d.anime) };
@@ -810,13 +857,26 @@ async function viewHome() {
     const d = await src().home();
     const hero = d.trending.find(x => x.backdrop) || d.trending[0];
     app.innerHTML = `<div class="view">${heroHTML(hero)}
+      <div id="forYou"></div>
       ${row("Tendances <em>de la semaine</em>", "Ce que tout le monde regarde en ce moment", d.trending.filter(x => x !== hero))}
       ${row("Films", "Les plus populaires", d.movies)}
       ${row("Séries", "À dévorer saison après saison", d.tv)}
       ${row("Animés", "Le meilleur de l'animation japonaise", d.anime)}</div>`;
+    fillForYou();
   } catch (e) { app.innerHTML = errorBox(e.message); }
 }
 
+async function fillForYou() {
+  const p = state.profile; const box = $("#forYou");
+  if (!box || !p || !(p.genres?.length || p.favorites?.movie || p.favorites?.show)) return;
+  try {
+    const items = await src().forYou(p);
+    if (!$("#forYou") || !items.length) return;
+    const name = p.display_name ? `, ${esc(p.display_name)}` : "";
+    const why = p.genres?.length ? `D'après tes goûts : ${esc(p.genres.slice(0, 3).join(" · "))}${p.genres.length > 3 ? "…" : ""}` : "D'après tes titres préférés";
+    $("#forYou").innerHTML = row(`Pour toi<em>${name}</em>`, why, items);
+  } catch {}
+}
 function chipsHTML() {
   const f = [["all","Tout"],["movie","Films"],["tv","Séries"],["anime","Animés"]];
   return `<div class="chips" role="group" aria-label="Filtrer par type">${f.map(([v, l]) => `<button class="chip" data-filter="${v}" aria-pressed="${state.filter === v}">${l}</button>`).join("")}</div>`;
@@ -922,7 +982,8 @@ function viewList(list) {
 }
 
 async function viewSuggestions() {
-  const favs = state.saved.fav;
+  const pf = [state.profile?.favorites?.movie, state.profile?.favorites?.show].filter(f => f && !state.saved.fav.some(x => x.key === keyOf(f)));
+  const favs = [...state.saved.fav, ...pf];
   const head = `<div class="wrap page-head"><div><h1>Pour <em>toi</em></h1><p>${favs.length ? `D'après tes ${favs.length} pellicule${favs.length > 1 ? "s" : ""} : ${esc(favs.slice(0, 3).map(f => f.title).join(", "))}${favs.length > 3 ? "…" : ""}` : "Des recommandations basées sur tes favoris."}</p></div>${favs.length ? chipsHTML() : ""}</div>`;
   if (!favs.length) {
     app.innerHTML = `<div class="view">${head}<div class="wrap"><div class="empty"><div class="ico">${I.spark}</div><h3>Dis-nous ce que tu aimes</h3><p>Ajoute quelques favoris et cette page te proposera des titres qui leur ressemblent.</p><a class="btn btn-primary" href="#accueil">Choisir des favoris</a></div></div></div>`;
@@ -948,7 +1009,9 @@ function providersHTML(it) {
   const groups = [["Avec un abonnement", p.flatrate], ["Gratuit", p.free], ["En location", p.rent], ["À l'achat", p.buy]].filter(([, l]) => l?.length);
   if (p.none || !groups.length) return `<p class="prov-note" style="margin:0">Pas disponible en streaming en France pour le moment.</p>`;
   const seen = new Set();
-  return groups.map(([t, l]) => `<div class="prov-group"><h3>${t}</h3><div class="prov-logos">${l.filter(x => { const k = t + x.provider_id; if (seen.has(k)) return false; seen.add(k); return true; }).map(x => `<a href="${esc(p.link)}" target="_blank" rel="noopener" title="${esc(x.provider_name)}" aria-label="${esc(x.provider_name)}"><img src="${IMG}w92${esc(x.logo_path)}" alt="${esc(x.provider_name)}" loading="lazy"></a>`).join("")}</div></div>`).join("")
+  const mine = (x) => (state.profile?.platforms || []).some(pl => (PLATFORMS.find(q => q.name === pl)?.match || []).some(m => normName(x.provider_name).includes(m)));
+  const myOnes = [...new Set([...(p.flatrate || []), ...(p.free || [])].filter(mine).map(x => x.provider_name))];
+  return (myOnes.length ? `<p class="prov-mine">${I.check} Sur ta plateforme : ${esc(myOnes.join(", "))}</p>` : "") + groups.map(([t, l]) => `<div class="prov-group"><h3>${t}</h3><div class="prov-logos">${l.filter(x => { const k = t + x.provider_id; if (seen.has(k)) return false; seen.add(k); return true; }).map(x => `<a class="${mine(x) ? "mine" : ""}" href="${esc(p.link)}" target="_blank" rel="noopener" title="${esc(x.provider_name)}" aria-label="${esc(x.provider_name)}"><img src="${IMG}w92${esc(x.logo_path)}" alt="${esc(x.provider_name)}" loading="lazy"></a>`).join("")}</div></div>`).join("")
     + `<p class="prov-note">Toucher un logo ouvre la page du titre avec les liens. Données <a href="https://www.justwatch.com/fr" target="_blank" rel="noopener">JustWatch</a>.</p>`;
 }
 function trailerHTML(it) {
@@ -1270,7 +1333,7 @@ async function syncOnLogin() {
 function renderAcct() {
   const b = $("#acctBtn"); if (!sb) { b.hidden = true; return; }
   b.hidden = false; b.classList.toggle("in", !!user);
-  if (user) { b.textContent = (user.user_metadata?.full_name || user.email || "?").trim()[0].toUpperCase(); b.setAttribute("aria-label", "Mon compte : " + user.email); }
+  if (user) { b.textContent = (state.profile?.display_name || user.user_metadata?.full_name || user.email || "?").trim()[0].toUpperCase(); b.setAttribute("aria-label", "Mon compte : " + user.email); }
   else { b.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>`; b.setAttribute("aria-label", "Se connecter"); }
 }
 function initAuth() {
@@ -1286,7 +1349,7 @@ function initAuth() {
       user = u; renderAcct();
       if (location.hash.includes("=")) history.replaceState(null, "", location.pathname + "#accueil");
       if (ev === "PASSWORD_RECOVERY") { setTimeout(() => openAccount("reset"), 0); return; }
-      if (changed && u) setTimeout(() => { syncOnLogin(); if (ev === "SIGNED_IN") toast("Connecté. Tes listes sont synchronisées.", I.heart(true)); }, 0);
+      if (changed && u) setTimeout(() => { syncOnLogin().then(loadProfile); if (ev === "SIGNED_IN") toast("Connecté. Tes listes sont synchronisées.", I.heart(true)); }, 0);
     });
   };
   document.head.appendChild(s);
@@ -1304,9 +1367,12 @@ function openAccount(mode = "login") {
   const google = GOOGLE_ON ? `<button class="btn btn-google" id="gBtn" type="button"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continuer avec Google</button><div class="or">ou</div>` : "";
   let html;
   if (user) {
-    html = `${head("Mon compte")}<div class="who"><span class="avatar-sm">${esc((user.email || "?")[0].toUpperCase())}</span><div><b>${esc(user.email)}</b><small>Listes synchronisées sur tous tes appareils</small></div></div>
-      <p>${state.saved.fav.length} favori${state.saved.fav.length > 1 ? "s" : ""} et ${state.saved.watch.length} titre${state.saved.watch.length > 1 ? "s" : ""} à voir enregistrés dans ton compte.</p>
-      <div class="sheet-actions"><button class="btn btn-ghost" id="outBtn">Se déconnecter</button></div>`;
+    const pr = state.profile;
+    const sum = pr ? [["Âge", pr.age_range], ["Genres", (pr.genres || []).join(", ")], ["Film préféré", pr.favorites?.movie?.title], ["Série / animé préféré", pr.favorites?.show?.title], ["Plateformes", (pr.platforms || []).join(", ")]].filter(([, v]) => v) : [];
+    html = `${head(pr?.display_name ? `Salut ${esc(pr.display_name)}` : "Mon compte")}<div class="who"><span class="avatar-sm">${esc((pr?.display_name || user.email || "?")[0].toUpperCase())}</span><div><b>${esc(user.email)}</b><small>Listes synchronisées sur tous tes appareils</small></div></div>
+      <p>${state.saved.fav.length} pellicule${state.saved.fav.length > 1 ? "s" : ""} et ${state.saved.watch.length} titre${state.saved.watch.length > 1 ? "s" : ""} à voir enregistrés dans ton compte.</p>
+      ${sum.length ? `<div class="profile-sum">${sum.map(([k, v]) => `<span>${esc(k)} : <b>${esc(v)}</b></span>`).join("")}</div>` : `<p>Ton profil n'est pas encore rempli. Il sert à te proposer des titres qui te ressemblent.</p>`}
+      <div class="sheet-actions"><button class="btn btn-primary" id="pfBtn">${pr?.completed ? "Modifier mon profil" : "Compléter mon profil"}</button><button class="btn btn-ghost" id="outBtn">Se déconnecter</button></div>`;
   } else if (mode === "forgot") {
     html = `${head("Mot de passe oublié")}<p>Indique ton e-mail, on t'envoie un lien pour choisir un nouveau mot de passe.</p>
       <form class="auth-form" id="aForm" novalidate><div class="field"><label for="aEmail">E-mail</label><input class="plain" id="aEmail" type="email" autocomplete="email" required></div>
@@ -1340,8 +1406,9 @@ function openAccount(mode = "login") {
     const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: backUrl() } });
     if (error) say(authMsg(error), "err");
   });
+  ov.querySelector("#pfBtn")?.addEventListener("click", () => openProfile(1, false));
   ov.querySelector("#outBtn")?.addEventListener("click", async () => {
-    await sb.auth.signOut(); user = null; state.saved.fav = []; state.saved.watch = []; state.saved.folders = []; state.folder = "all"; save(); updateCounts(); renderAcct(); close(); rerender(); toast("Déconnecté", I.info);
+    await sb.auth.signOut(); user = null; state.saved.fav = []; state.saved.watch = []; state.saved.folders = []; state.folder = "all"; state.profile = null; state.saved.profile = null; save(); updateCounts(); renderAcct(); close(); rerender(); toast("Déconnecté", I.info);
   });
   ov.querySelector("#aForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -1367,6 +1434,101 @@ function openAccount(mode = "login") {
     } catch (err) { say(authMsg(err), "err"); }
     btn.disabled = false;
   });
+}
+
+/* ================= Profil ================= */
+const AGE_RANGES = ["Moins de 18 ans", "18 – 24 ans", "25 – 34 ans", "35 – 44 ans", "45 – 54 ans", "55 ans et plus"];
+const LANGS = [["VF", "En français (VF)"], ["VOSTFR", "En version originale (VOSTFR)"], ["Peu importe", "Peu importe"]];
+const KINDS = [["movie", "Films"], ["tv", "Séries"], ["anime", "Animés"]];
+const PROFILE_GENRES = ["Action", "Aventure", "Animation", "Comédie", "Crime", "Documentaire", "Drame", "Famille", "Fantastique", "Guerre", "Histoire", "Horreur", "Musique", "Mystère", "Romance", "Science-fiction", "Thriller", "Western"];
+const PLATFORMS = [
+  { name: "Netflix", match: ["netflix"] }, { name: "Prime Video", match: ["amazon prime", "prime video"] }, { name: "Disney+", match: ["disney"] },
+  { name: "Canal+", match: ["canal"] }, { name: "Apple TV+", match: ["apple tv"] }, { name: "Max", match: ["max"] }, { name: "Paramount+", match: ["paramount"] },
+  { name: "Crunchyroll", match: ["crunchyroll"] }, { name: "ADN", match: ["adn", "animation digital network"] }, { name: "France.tv", match: ["france.tv", "france tv"] },
+];
+state.profile = state.saved.profile || null;
+async function loadProfile() {
+  const { data, error } = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle();
+  if (error) return;
+  state.profile = data; state.saved.profile = data; save(); renderAcct();
+  if (!data) setTimeout(() => openProfile(1, true), 400);
+  else if ((location.hash || "#accueil") === "#accueil") fillForYou();
+}
+async function saveProfile(draft, completed) {
+  const row = { id: user.id, display_name: (draft.display_name || "").trim().slice(0, 40) || null, age_range: draft.age_range || null, kinds: draft.kinds || [], genres: draft.genres || [],
+    favorites: draft.favorites || {}, platforms: draft.platforms || [], lang: draft.lang || null, completed: !!completed, updated_at: new Date().toISOString() };
+  const { error } = await sb.from("profiles").upsert(row);
+  if (error) { toast("Pas pu enregistrer ton profil. Réessaie.", I.info); return false; }
+  state.profile = row; state.saved.profile = row; save(); renderAcct(); return true;
+}
+const pickSlim = (it) => ({ id: it.id, type: it.type, anime: !!it.anime, title: it.title, year: it.year, poster: it.poster || null, pal: it.pal, m: it.m, genres: it.genres || [], genre_ids: it.genre_ids || [] });
+function openProfile(step = 1, first = false) {
+  if (!sb || !user) return openAccount();
+  document.querySelector(".overlay")?.remove();
+  const draft = JSON.parse(JSON.stringify(state.profile || {}));
+  draft.kinds ||= []; draft.genres ||= []; draft.platforms ||= []; draft.favorites ||= {};
+  const ov = document.createElement("div"); ov.className = "overlay";
+  const chip = (group, val, label, on) => `<button type="button" class="chip" data-pf="${group}" data-v="${esc(val)}" aria-pressed="${on}">${esc(label)}</button>`;
+  const multi = (group, list) => list.map(([v, l]) => chip(group, v, l, draft[group].includes(v))).join("");
+  const picked = (slot) => { const f = draft.favorites[slot]; return f ? `<div class="picked"><span class="mini">${posterHTML(f)}</span><div><b>${esc(f.title)}</b><small>${esc(f.year || "")} · ${kindLabel(f)}</small></div><button type="button" class="link-btn" data-unpick="${slot}">Changer</button></div>` : ""; };
+  const searchBox = (slot, label, ph) => `<div class="pf-q"><b>${label}</b>${draft.favorites[slot] ? picked(slot) : `<div class="field"><label class="sr" for="pfq-${slot}">${label}</label><input class="plain" id="pfq-${slot}" data-pick="${slot}" placeholder="${ph}" autocomplete="off"></div><div class="pick-list" id="pfr-${slot}"></div>`}</div>`;
+  const draw = () => {
+    const body = step === 1 ? `
+        <div class="field"><label for="pfName">Ton prénom ou pseudo</label><input class="plain" id="pfName" maxlength="40" value="${esc(draft.display_name || "")}" placeholder="Comment on t'appelle ?"></div>
+        <div class="pf-q"><b>Ta tranche d'âge</b><div class="chips">${AGE_RANGES.map(a => `<button type="button" class="chip" data-pf1="age_range" data-v="${esc(a)}" aria-pressed="${draft.age_range === a}">${esc(a)}</button>`).join("")}</div></div>
+        <div class="pf-q"><b>Tu regardes plutôt…</b><div class="chips">${LANGS.map(([v, l]) => `<button type="button" class="chip" data-pf1="lang" data-v="${esc(v)}" aria-pressed="${draft.lang === v}">${esc(l)}</button>`).join("")}</div><small>On choisira la bande-annonce dans cette version quand elle existe.</small></div>`
+      : step === 2 ? `
+        <div class="pf-q"><b>Ce que tu aimes regarder</b><div class="chips">${multi("kinds", KINDS)}</div></div>
+        <div class="pf-q"><b>Tes genres préférés</b><small>Choisis-en autant que tu veux.</small><div class="chips">${multi("genres", PROFILE_GENRES.map(g => [g, g]))}</div></div>`
+      : `
+        ${searchBox("movie", "Ton film préféré", "Cherche un film…")}
+        ${searchBox("show", "Ta série ou ton animé préféré", "Cherche une série ou un animé…")}
+        <div class="pf-q"><b>Tes plateformes de streaming</b><small>Elles seront mises en avant sur les fiches.</small><div class="chips">${multi("platforms", PLATFORMS.map(x => [x.name, x.name]))}</div></div>`;
+    ov.innerHTML = `<div class="sheet wide" role="dialog" aria-modal="true" aria-labelledby="pfT">
+      <div class="sheet-head"><div style="display:grid;gap:10px"><div class="steps-dots"><i class="on"></i><i class="${step >= 2 ? "on" : ""}"></i><i class="${step >= 3 ? "on" : ""}"></i><span>Étape ${step} sur 3</span></div>
+        <h2 id="pfT">${step === 1 ? (first ? "Bienvenue ! Faisons connaissance" : "Toi") : step === 2 ? "Tes goûts" : "Tes préférés"}</h2></div>
+        <button class="icon-btn" data-close aria-label="Fermer">${I.close}</button></div>
+      ${step === 1 && first ? `<p>Trois petites questions pour te proposer des titres qui te ressemblent. Tout est facultatif et modifiable plus tard.</p>` : ""}
+      ${body}
+      <div class="sheet-actions" style="justify-content:space-between">
+        ${step > 1 ? `<button class="btn btn-ghost" data-step="${step - 1}">${I.back} Retour</button>` : `<button class="btn btn-ghost" data-later>Plus tard</button>`}
+        ${step < 3 ? `<button class="btn btn-primary" data-step="${step + 1}">Suivant</button>` : `<button class="btn btn-primary" data-finish>Terminer</button>`}
+      </div></div>`;
+  };
+  const keep = () => { const n = ov.querySelector("#pfName"); if (n) draft.display_name = n.value; };
+  const close = () => { ov.remove(); document.removeEventListener("keydown", onKey); };
+  const onKey = (e) => { if (e.key === "Escape") close(); };
+  document.addEventListener("keydown", onKey);
+  let tmr2;
+  ov.addEventListener("input", (e) => {
+    const slot = e.target.dataset.pick; if (!slot) return;
+    clearTimeout(tmr2); const q = e.target.value.trim();
+    tmr2 = setTimeout(async () => {
+      const box = ov.querySelector("#pfr-" + slot); if (!box) return;
+      if (q.length < 2) { box.innerHTML = ""; return; }
+      try {
+        const res = (await src().search(q)).filter(x => slot === "movie" ? x.type === "movie" : x.type === "tv").slice(0, 5);
+        res.forEach(x => reg.set("pick:" + keyOf(x), x));
+        box.innerHTML = res.length ? res.map(x => `<button type="button" class="pick-row" data-choose="${slot}" data-k="${esc(keyOf(x))}"><span class="mini">${posterHTML(x)}</span><span><b>${esc(x.title)}</b><small>${esc(x.year || "")} · ${kindLabel(x)}</small></span></button>`).join("") : `<small style="color:var(--muted)">Aucun résultat.</small>`;
+      } catch { box.innerHTML = `<small style="color:var(--muted)">Recherche impossible pour le moment.</small>`; }
+    }, 300);
+  });
+  ov.addEventListener("click", async (e) => {
+    const t = e.target;
+    if (t === ov || t.closest("[data-close]")) return close();
+    const c1 = t.closest("[data-pf1]"); if (c1) { keep(); const k = c1.dataset.pf1; draft[k] = draft[k] === c1.dataset.v ? null : c1.dataset.v; return draw(); }
+    const cm = t.closest("[data-pf]"); if (cm) { keep(); const k = cm.dataset.pf, v = cm.dataset.v; draft[k] = draft[k].includes(v) ? draft[k].filter(x => x !== v) : [...draft[k], v]; return draw(); }
+    const ch = t.closest("[data-choose]"); if (ch) { const it = reg.get("pick:" + ch.dataset.k); if (it) draft.favorites[ch.dataset.choose] = pickSlim(it); return draw(); }
+    const un = t.closest("[data-unpick]"); if (un) { delete draft.favorites[un.dataset.unpick]; draw(); ov.querySelector("#pfq-" + un.dataset.unpick)?.focus(); return; }
+    const st = t.closest("[data-step]"); if (st) { keep(); step = +st.dataset.step; draw(); ov.querySelector(".sheet")?.scrollTo(0, 0); return; }
+    if (t.closest("[data-later]")) { keep(); if (first) await saveProfile(draft, false); close(); toast("Tu pourras compléter ton profil depuis « Mon compte ».", I.info); return; }
+    if (t.closest("[data-finish]")) {
+      keep(); const b = t.closest("[data-finish]"); b.disabled = true;
+      if (await saveProfile(draft, true)) { close(); toast(draft.display_name ? `Merci ${draft.display_name}, ton profil est prêt !` : "Ton profil est prêt !", I.spark.replace('width="30" height="30"', 'width="18" height="18"')); rerender(); }
+      b.disabled = false;
+    }
+  });
+  draw(); document.body.appendChild(ov); ov.querySelector("#pfName, .chip")?.focus();
 }
 
 applyMode(); updateCounts();
