@@ -274,6 +274,34 @@ a.person:hover b { color: var(--accent); }
 .seen-row label { font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
 .seen-row input[type=date] { height: 38px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); padding: 0 10px; font: inherit; font-size: 14px; }
 .seen-row input[type=date]:focus { outline: none; border-color: var(--accent); }
+.folder-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.fchip { height: 40px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-weight: 600; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all .2s var(--ease); }
+.fchip:hover { border-color: rgba(244,230,210,.25); }
+.fchip svg { color: var(--accent); }
+.fchip .n { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.fchip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.fchip[aria-pressed="true"] svg, .fchip[aria-pressed="true"] .n { color: var(--accent-ink); }
+.fchip.ghost { border-style: dashed; color: var(--muted); background: none; }
+.fchip.ghost:hover { color: var(--text); }
+.inline-form { display: inline-flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.inline-form input { height: 40px; border-radius: 12px; border: 1px solid var(--accent); background: var(--surface-2); color: var(--text); padding: 0 12px; font: inherit; font-size: 14px; width: min(240px, 60vw); }
+.inline-form input:focus { outline: none; }
+.inline-form .btn { height: 40px; }
+.ideas { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
+.ideas button { height: 32px; padding: 0 12px; border-radius: var(--r-pill); border: 1px solid var(--line); background: none; color: var(--text); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.ideas button:hover { border-color: var(--accent); color: var(--accent); }
+.folder-head { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; padding-block: 20px 4px; }
+.folder-head h2 { font-family: var(--font-display); font-weight: 400; font-size: 34px; margin: 0; line-height: 1; }
+.folder-head .tools { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+.danger { color: #ff9aa8 !important; }
+.btn-danger { background: rgba(255,93,115,.14); border-color: rgba(255,93,115,.45); color: #ffb3bf; }
+.frow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 50px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--ink); color: var(--text); font: inherit; font-weight: 600; cursor: pointer; text-align: left; }
+.frow .box { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--muted); display: grid; place-items: center; flex: none; color: var(--accent-ink); }
+.frow[aria-checked="true"] { border-color: rgba(242,180,73,.5); }
+.frow[aria-checked="true"] .box { background: var(--accent); border-color: var(--accent); }
+.flist { display: grid; gap: 8px; }
+.folder-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.folder-tags span { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: var(--r-pill); background: rgba(242,180,73,.12); color: var(--accent); display: inline-flex; gap: 6px; align-items: center; }
 .seen { font-size: 11.5px; color: var(--ok); font-weight: 600; }
 .prov-group + .prov-group { margin-top: 14px; }
 .prov-group h3 { font-size: 13px; font-weight: 700; margin: 0 0 8px; color: var(--text); }
@@ -342,7 +370,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wr
     <a class="logo" href="#accueil" aria-label="Pellicule, accueil"><b>Pellicule</b><i></i></a>
     <nav class="nav" aria-label="Navigation principale">
       <a href="#accueil" data-nav="accueil">Accueil</a>
-      <a href="#favoris" data-nav="favoris">Favoris <span class="count" data-count="fav">0</span></a>
+      <a href="#pellicules" data-nav="pellicules">Mes pellicules <span class="count" data-count="fav">0</span></a>
       <a href="#a-voir" data-nav="a-voir">À voir <span class="count" data-count="watch">0</span></a>
       <a href="#suggestions" data-nav="suggestions">Suggestions</a>
     </nav>
@@ -369,7 +397,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wr
 
 <nav class="tabbar" aria-label="Navigation">
   <a href="#accueil" data-nav="accueil"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Accueil</a>
-  <a href="#favoris" data-nav="favoris"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Favoris<span class="count" data-count="fav" hidden>0</span></a>
+  <a href="#pellicules" data-nav="pellicules"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Pellicules<span class="count" data-count="fav" hidden>0</span></a>
   <a href="#a-voir" data-nav="a-voir"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>À voir<span class="count" data-count="watch" hidden>0</span></a>
   <a href="#suggestions" data-nav="suggestions"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.2 5.6L20 9.5l-4.5 3.8L17 19l-5-3.2L7 19l1.5-5.7L4 9.5l5.8-.9z"/></svg>Pour toi</a>
 </nav>
@@ -389,6 +417,8 @@ const I = {
   star: `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2 6.3 20.3l1.2-6.4L2.8 9.5l6.4-.8z"/></svg>`,
   back: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>`,
   info: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h0"/></svg>`,
+  folder: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`,
+  plus: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>`,
   check: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>`,
   close: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>`,
   ext: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>`,
@@ -525,13 +555,59 @@ function toggle(list, it) {
   if (on) arr.unshift(slim(it)); else arr.splice(i, 1);
   save(); updateCounts();
   cloudWrite(list, on ? arr[0] : { key: keyOf(it) }, on);
-  toast(list === "fav" ? (on ? "Ajouté à tes favoris" : "Retiré des favoris") : (on ? "Ajouté à ta liste « À voir »" : "Retiré de « À voir »"), list === "fav" ? I.heart(true) : I.mark(true));
+  toast(list === "fav" ? (on ? "Ajouté à Mes pellicules" : "Retiré de Mes pellicules") : (on ? "Ajouté à ta liste « À voir »" : "Retiré de « À voir »"), list === "fav" ? I.heart(true) : I.mark(true));
   return on;
 }
 function updateCounts() {
   document.querySelectorAll('[data-count="fav"]').forEach(el => { el.textContent = state.saved.fav.length; if (el.closest(".tabbar")) el.hidden = !state.saved.fav.length; });
   document.querySelectorAll('[data-count="watch"]').forEach(el => { el.textContent = state.saved.watch.length; if (el.closest(".tabbar")) el.hidden = !state.saved.watch.length; });
 }
+/* ================= Dossiers ================= */
+state.saved.folders ||= [];
+state.folder = "all";
+const GENRE_IDS = { "Action": [28, 10759], "Aventure": [12, 10759], "Animation": [16], "Comédie": [35], "Crime": [80], "Documentaire": [99], "Drame": [18], "Famille": [10751, 10762], "Fantastique": [14, 10765], "Histoire": [36], "Horreur": [27], "Musique": [10402], "Mystère": [9648], "Romance": [10749], "Science-fiction": [878, 10765], "Thriller": [53], "Guerre": [10752, 10768], "Western": [37] };
+const FOLDER_IDEAS = ["Action", "Aventure", "Comédie", "Science-fiction", "Horreur", "Animés", "Nostalgie", "Coups de cœur", "À revoir", "Soirée pop-corn"];
+const normName = (n) => n.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+function matchesFolderName(it, name) {
+  const n = normName(name);
+  if (n === "animes" || n === "anime") return !!it.anime;
+  const g = Object.keys(GENRE_IDS).find(k => normName(k) === n); if (!g) return false;
+  return (it.genres || []).some(x => normName(x) === n) || (it.genre_ids || []).some(id => GENRE_IDS[g].includes(id));
+}
+const isAutoName = (name) => { const n = normName(name); return n === "animes" || Object.keys(GENRE_IDS).some(k => normName(k) === n); };
+const folderItems = (fid) => state.saved.fav.filter(x => (x.folders || []).includes(fid));
+const newFolderId = () => "f" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+function createFolder(name) {
+  name = name.trim().slice(0, 40); if (!name) return null;
+  const ex = state.saved.folders.find(f => normName(f.name) === normName(name));
+  if (ex) { toast(`Le dossier « ${ex.name} » existe déjà`, I.folder); return ex; }
+  const f = { id: newFolderId(), name, position: state.saved.folders.length };
+  state.saved.folders.push(f);
+  const changed = isAutoName(name) ? state.saved.fav.filter(it => matchesFolderName(it, name)) : [];
+  changed.forEach(it => { it.folders = [...new Set([...(it.folders || []), f.id])]; });
+  save(); cloudFolder(f); cloudItems(changed);
+  toast(changed.length ? `Dossier « ${name} » créé avec ${changed.length} titre${changed.length > 1 ? "s" : ""}` : `Dossier « ${name} » créé`, I.folder);
+  return f;
+}
+function renameFolder(id, name) {
+  const f = state.saved.folders.find(x => x.id === id); name = name.trim().slice(0, 40); if (!f || !name) return;
+  f.name = name; save(); cloudFolder(f); toast("Dossier renommé", I.folder);
+}
+function deleteFolder(id) {
+  const f = state.saved.folders.find(x => x.id === id); if (!f) return;
+  state.saved.folders = state.saved.folders.filter(x => x.id !== id);
+  const changed = folderItems(id); changed.forEach(it => { it.folders = it.folders.filter(x => x !== id); });
+  save(); cloudItems(changed);
+  if (sb && user) sb.from("folders").delete().eq("user_id", user.id).eq("id", id).then(({ error }) => error && toast("Pas pu supprimer le dossier en ligne.", I.info));
+  toast(`Dossier « ${f.name} » supprimé`, I.folder);
+}
+function toggleItemFolder(key, fid) {
+  const it = state.saved.fav.find(x => x.key === key); if (!it) return false;
+  const has = (it.folders || []).includes(fid);
+  it.folders = has ? it.folders.filter(x => x !== fid) : [...(it.folders || []), fid];
+  save(); cloudItems([it]); return !has;
+}
+
 // Premier lancement en démo : quelques favoris d'exemple pour montrer les suggestions.
 if (!state.saved.seeded && !isLive()) {
   ["d2", "d16", "d11"].forEach(id => state.saved.fav.push({ ...slim(DEMO_MAP[id]), example: true }));
@@ -680,7 +756,8 @@ function cardHTML(it, opts = {}) {
   return `<article class="card" data-key="${esc(keyOf(it))}">
     <a class="card-poster" href="${route(it)}" aria-label="${esc(it.title)}">${posterHTML(it)}<span class="badge k-${kindOf(it)}">${kindLabel(it)}</span></a>
     <div class="quick ${fav || watch ? "has-on" : ""}">
-      <button class="qbtn fav ${fav ? "on" : ""}" data-act="fav" aria-pressed="${fav}" aria-label="${fav ? "Retirer des favoris" : "Ajouter aux favoris"}">${I.heart(fav)}</button>
+      <button class="qbtn fav ${fav ? "on" : ""}" data-act="fav" aria-pressed="${fav}" aria-label="${fav ? "Retirer de Mes pellicules" : "Ajouter à Mes pellicules"}">${I.heart(fav)}</button>
+      ${opts.folderBtn && fav ? `<button class="qbtn" data-folders aria-label="Ranger dans un dossier">${I.folder}</button>` : ""}
       <button class="qbtn watch ${watch ? "on" : ""}" data-act="watch" aria-pressed="${watch}" aria-label="${watch ? "Retirer de À voir" : "Ajouter à À voir"}">${I.mark(watch)}</button>
     </div>
     <div class="card-info">
@@ -721,7 +798,7 @@ function heroHTML(it) {
       ${it.overview ? `<p class="syn">${esc(it.overview)}</p>` : ""}
       <div class="actions" data-key="${esc(keyOf(it))}">
         <a class="btn btn-primary" href="${route(it)}">${I.playSm} Voir la fiche</a>
-        <button class="btn btn-ghost ${fav ? "on-fav" : ""}" data-act="fav" aria-pressed="${fav}">${I.heart(fav)} ${fav ? "En favori" : "Favori"}</button>
+        <button class="btn btn-ghost ${fav ? "on-fav" : ""}" data-act="fav" aria-pressed="${fav}">${I.heart(fav)} ${fav ? "Gardé" : "J'aime"}</button>
         <button class="btn btn-ghost ${watch ? "on-watch" : ""}" data-act="watch" aria-pressed="${watch}">${I.mark(watch)} ${watch ? "Dans À voir" : "À voir"}</button>
       </div>
     </div></div></section>`;
@@ -765,6 +842,68 @@ async function viewSearch() {
   } catch (e) { if (seq === state.searchSeq) app.innerHTML = errorBox(e.message); }
 }
 
+function viewPellicules() {
+  const items = state.saved.fav; const folders = state.saved.folders;
+  if (state.folder !== "all" && !folders.some(f => f.id === state.folder)) state.folder = "all";
+  const cur = folders.find(f => f.id === state.folder);
+  const inFolder = cur ? folderItems(cur.id) : items;
+  const shown = inFolder.filter(passFilter);
+  remember(items);
+  const hasEx = items.some(x => x.example);
+  const ideas = FOLDER_IDEAS.filter(n => !folders.some(f => normName(f.name) === normName(n))).slice(0, 8);
+  const ui = state.folderUI || "";
+  const bar = `<div class="folder-bar" role="group" aria-label="Dossiers">
+      <button class="fchip" data-folder="all" aria-pressed="${!cur}">Tous les titres <span class="n">${items.length}</span></button>
+      ${folders.map(f => `<button class="fchip" data-folder="${esc(f.id)}" aria-pressed="${cur?.id === f.id}">${I.folder}${esc(f.name)} <span class="n">${folderItems(f.id).length}</span></button>`).join("")}
+      ${ui === "new" ? `<form class="inline-form" id="newFolderForm"><label class="sr" for="newFolderName">Nom du dossier</label><input id="newFolderName" maxlength="40" placeholder="Nom du dossier" autocomplete="off"><button class="btn btn-primary" type="submit">Créer</button><button class="link-btn" type="button" data-folder-ui="">Annuler</button></form>`
+        : `<button class="fchip ghost" data-folder-ui="new">${I.plus} Nouveau dossier</button>`}
+    </div>
+    ${ideas.length && (folders.length < 3 || ui === "new") ? `<div class="ideas"><span>Idées :</span>${ideas.map(n => `<button data-folder-idea="${esc(n)}">${esc(n)}</button>`).join("")}<span style="font-size:12px">Les dossiers de genre se remplissent tout seuls.</span></div>` : ""}`;
+  const fhead = cur ? `<div class="folder-head"><h2>${esc(cur.name)}</h2><div class="tools">
+      ${ui === "rename" ? `<form class="inline-form" id="renameForm"><label class="sr" for="renameName">Nouveau nom</label><input id="renameName" maxlength="40" value="${esc(cur.name)}"><button class="btn btn-primary" type="submit">Renommer</button><button class="link-btn" type="button" data-folder-ui="">Annuler</button></form>`
+        : ui === "delete" ? `<span>Supprimer ce dossier ? Les titres restent dans Mes pellicules.</span><button class="btn btn-danger" data-folder-delete>Supprimer</button><button class="link-btn" data-folder-ui="">Annuler</button>`
+        : `<button class="link-btn" data-folder-ui="rename">Renommer</button><button class="link-btn danger" data-folder-ui="delete">Supprimer</button>`}</div></div>` : "";
+  app.innerHTML = `<div class="view"><div class="wrap page-head"><div>
+      <h1>Mes <em>pellicules</em></h1>
+      <p>Les titres que tu as aimés, rangés comme tu veux. Ils servent aussi à te proposer des suggestions.${hasEx ? " Les titres déjà présents sont des exemples, retire-les quand tu veux." : ""}</p>
+    </div>${items.length ? chipsHTML() : ""}</div>
+    <div class="wrap" style="display:grid;gap:12px">${items.length || folders.length ? bar : ""}${fhead}</div>
+    <div class="wrap" style="padding-top:20px">${!items.length ? `<div class="empty"><div class="ico">${I.heart(false).replace('width="18" height="18"', 'width="30" height="30"')}</div>
+        <h3>Ta première pellicule t'attend</h3><p>Touche le cœur sur une affiche pour garder un titre ici, puis range-le dans tes dossiers.</p>
+        <a class="btn btn-primary" href="#accueil">Parcourir les titres</a></div>`
+      : !inFolder.length ? `<div class="empty"><div class="ico">${I.folder.replace('width="18" height="18"', 'width="30" height="30"')}</div><h3>Ce dossier est vide</h3><p>Touche l'icône dossier sur une affiche dans « Tout », ou ouvre une fiche, pour ranger des titres ici.</p><button class="btn btn-ghost" data-folder="all">Voir tous mes titres</button></div>`
+      : shown.length ? `<div class="grid">${shown.map(i => cardHTML(i, { seen: true, folderBtn: true })).join("")}</div>` : `<div class="empty"><h3>Rien dans ce filtre</h3><p>Choisis « Tout » pour revoir tout le dossier.</p></div>`}</div></div>`;
+  if (ui === "new") $("#newFolderName")?.focus();
+  if (ui === "rename") { const i = $("#renameName"); i?.focus(); i?.select(); }
+}
+function openFolderSheet(key) {
+  const it = state.saved.fav.find(x => x.key === key); if (!it) return;
+  document.querySelector(".overlay")?.remove();
+  const ov = document.createElement("div"); ov.className = "overlay";
+  const draw = () => {
+    const fs = state.saved.folders;
+    ov.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="fsT">
+      <div class="sheet-head"><div><h2 id="fsT">Ranger dans…</h2><p style="margin-top:6px">${esc(it.title)}</p></div><button class="icon-btn" data-close aria-label="Fermer">${I.close}</button></div>
+      ${fs.length ? `<div class="flist">${fs.map(f => { const on = (it.folders || []).includes(f.id); return `<button class="frow" role="checkbox" aria-checked="${on}" data-fs="${esc(f.id)}"><span class="box">${on ? I.check : ""}</span>${I.folder}<span>${esc(f.name)}</span></button>`; }).join("")}</div>` : `<p>Tu n'as pas encore de dossier. Crée le premier ci-dessous.</p>`}
+      <form class="inline-form" id="fsNew"><label class="sr" for="fsName">Nouveau dossier</label><input id="fsName" maxlength="40" placeholder="Nouveau dossier" autocomplete="off"><button class="btn btn-ghost" type="submit">${I.plus} Créer</button></form>
+      <div class="sheet-actions"><button class="btn btn-primary" data-close>Terminé</button></div></div>`;
+  };
+  const close = () => { ov.remove(); document.removeEventListener("keydown", onKey); const h = (location.hash || "").slice(1); if (h === "pellicules") viewPellicules(); else { const row = $("#folderRow"); if (row) row.innerHTML = folderRowHTML(it); } };
+  const onKey = (e) => { if (e.key === "Escape") close(); };
+  document.addEventListener("keydown", onKey);
+  ov.addEventListener("click", (e) => {
+    if (e.target === ov || e.target.closest("[data-close]")) return close();
+    const r = e.target.closest("[data-fs]"); if (r) { toggleItemFolder(key, r.dataset.fs); draw(); ov.querySelector(`[data-fs="${r.dataset.fs}"]`)?.focus(); }
+  });
+  ov.addEventListener("submit", (e) => { e.preventDefault(); const v = ov.querySelector("#fsName").value; const f = createFolder(v); if (f && !(it.folders || []).includes(f.id)) toggleItemFolder(key, f.id); draw(); ov.querySelector("#fsName")?.focus(); });
+  draw(); document.body.appendChild(ov); ov.querySelector(".frow, #fsName")?.focus();
+}
+function folderRowHTML(it) {
+  if (!inList("fav", it)) return "";
+  const saved = state.saved.fav.find(x => x.key === keyOf(it));
+  const names = (saved?.folders || []).map(id => state.saved.folders.find(f => f.id === id)?.name).filter(Boolean);
+  return `${names.length ? names.map(n => `<span>${I.folder.replace('width="18" height="18"', 'width="12" height="12"')}${esc(n)}</span>`).join("") : ""}<button class="link-btn" data-folders>${names.length ? "Modifier les dossiers" : "Ranger dans un dossier"}</button>`;
+}
 function viewList(list) {
   const items = state.saved[list];
   const isFav = list === "fav";
@@ -784,7 +923,7 @@ function viewList(list) {
 
 async function viewSuggestions() {
   const favs = state.saved.fav;
-  const head = `<div class="wrap page-head"><div><h1>Pour <em>toi</em></h1><p>${favs.length ? `D'après tes ${favs.length} favori${favs.length > 1 ? "s" : ""} : ${esc(favs.slice(0, 3).map(f => f.title).join(", "))}${favs.length > 3 ? "…" : ""}` : "Des recommandations basées sur tes favoris."}</p></div>${favs.length ? chipsHTML() : ""}</div>`;
+  const head = `<div class="wrap page-head"><div><h1>Pour <em>toi</em></h1><p>${favs.length ? `D'après tes ${favs.length} pellicule${favs.length > 1 ? "s" : ""} : ${esc(favs.slice(0, 3).map(f => f.title).join(", "))}${favs.length > 3 ? "…" : ""}` : "Des recommandations basées sur tes favoris."}</p></div>${favs.length ? chipsHTML() : ""}</div>`;
   if (!favs.length) {
     app.innerHTML = `<div class="view">${head}<div class="wrap"><div class="empty"><div class="ico">${I.spark}</div><h3>Dis-nous ce que tu aimes</h3><p>Ajoute quelques favoris et cette page te proposera des titres qui leur ressemblent.</p><a class="btn btn-primary" href="#accueil">Choisir des favoris</a></div></div></div>`;
     return;
@@ -836,11 +975,15 @@ function setSeen(key, date) {
   const row = $("#seenRow"); if (row) row.innerHTML = seenRowHTML(reg.get(key) || item);
   toast(date ? `Noté : vu le ${fmtDate(date)}` : "Date retirée", I.check);
 }
+document.addEventListener("submit", (e) => {
+  if (e.target.id === "newFolderForm") { e.preventDefault(); const f = createFolder($("#newFolderName").value); if (f) state.folder = f.id; state.folderUI = ""; viewPellicules(); }
+  if (e.target.id === "renameForm") { e.preventDefault(); renameFolder(state.folder, $("#renameName").value); state.folderUI = ""; viewPellicules(); }
+});
 document.addEventListener("change", (e) => { if (e.target.id === "seenDate") setSeen(e.target.closest("[data-key]").dataset.key, e.target.value); });
 function detailActions(it) {
   const fav = inList("fav", it), watch = inList("watch", it);
   return `<div class="actions" data-key="${esc(keyOf(it))}">
-    <button class="btn btn-ghost ${fav ? "on-fav" : ""}" data-act="fav" aria-pressed="${fav}">${I.heart(fav)} ${fav ? "En favori" : "Ajouter aux favoris"}</button>
+    <button class="btn btn-ghost ${fav ? "on-fav" : ""}" data-act="fav" aria-pressed="${fav}">${I.heart(fav)} ${fav ? "Dans mes pellicules" : "Ajouter à mes pellicules"}</button>
     <button class="btn btn-ghost ${watch ? "on-watch" : ""}" data-act="watch" aria-pressed="${watch}">${I.mark(watch)} ${watch ? "Dans À voir" : "À voir plus tard"}</button>
     <a class="btn btn-primary" href="#bande-annonce" data-scroll="trailerSec">${I.playSm} Bande-annonce</a></div>`;
 }
@@ -871,6 +1014,7 @@ async function viewDetail(type, id) {
           ${it.tagline ? `<p class="tagline">« ${esc(it.tagline)} »</p>` : ""}
           ${detailActions(it)}
           <div class="seen-row" id="seenRow" data-key="${esc(keyOf(it))}">${seenRowHTML(it)}</div>
+          <div class="folder-tags" id="folderRow" data-key="${esc(keyOf(it))}">${folderRowHTML(it)}</div>
         </div>
       </div>
       <div class="wrap detail-body">
@@ -922,18 +1066,19 @@ let lastRoute = "";
 function router() {
   let h = (location.hash || "#accueil").slice(1);
   if (h.includes("=")) h = "accueil"; // retour de connexion (jetons dans l'adresse)
+  if (h === "favoris") { history.replaceState(null, "", "#pellicules"); h = "pellicules"; }
   const isPage = (x) => /^(film|serie|personne)-/.test(x);
   const navKey = isPage(h) ? "" : h;
   document.querySelectorAll("[data-nav]").forEach(a => { if (a.dataset.nav === navKey) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   if (h !== "recherche" && !isPage(h)) document.title = "Pellicule";
   if (h !== lastRoute) window.scrollTo({ top: 0 });
-  if (h !== lastRoute && (["favoris","a-voir","suggestions","recherche"].includes(h) || h.startsWith("personne-"))) state.filter = "all";
+  if (h !== lastRoute && (["pellicules","a-voir","suggestions","recherche"].includes(h) || h.startsWith("personne-"))) state.filter = "all";
   lastRoute = h;
   let m;
   if ((m = h.match(/^(film|serie)-(.+)$/))) return viewDetail(m[1] === "film" ? "movie" : "tv", m[2]);
   if ((m = h.match(/^personne-(.+)$/))) return viewPerson(m[1]);
   switch (h) {
-    case "favoris": return viewList("fav");
+    case "pellicules": return viewPellicules();
     case "a-voir": return viewList("watch");
     case "suggestions": return viewSuggestions();
     case "recherche": return viewSearch();
@@ -950,18 +1095,19 @@ document.addEventListener("click", (e) => {
     const host = act.closest("[data-key]"); const it = reg.get(host?.dataset.key); if (!it) return;
     const list = act.dataset.act; const on = toggle(list, it);
     const h = (location.hash || "").slice(1);
-    if ((h === "favoris" && list === "fav") || (h === "a-voir" && list === "watch")) return viewList(list === "fav" ? "fav" : "watch");
+    if (h === "pellicules" && list === "fav") return viewPellicules();
+    if (h === "a-voir" && list === "watch") return viewList("watch");
     // Met à jour le bouton sans tout redessiner
     if (act.classList.contains("qbtn")) {
       act.classList.toggle("on", on); act.setAttribute("aria-pressed", on);
       act.innerHTML = list === "fav" ? I.heart(on) : I.mark(on);
-      act.setAttribute("aria-label", list === "fav" ? (on ? "Retirer des favoris" : "Ajouter aux favoris") : (on ? "Retirer de À voir" : "Ajouter à À voir"));
+      act.setAttribute("aria-label", list === "fav" ? (on ? "Retirer de Mes pellicules" : "Ajouter à Mes pellicules") : (on ? "Retirer de À voir" : "Ajouter à À voir"));
       const q = act.parentElement; q.classList.toggle("has-on", !!q.querySelector(".qbtn.on"));
     } else {
       act.classList.toggle(list === "fav" ? "on-fav" : "on-watch", on); act.setAttribute("aria-pressed", on);
       const long = !!act.closest(".detail");
-      if (long && list === "fav") { const row = $("#seenRow"); if (row) row.innerHTML = seenRowHTML(it); }
-      act.innerHTML = list === "fav" ? `${I.heart(on)} ${on ? "En favori" : long ? "Ajouter aux favoris" : "Favori"}` : `${I.mark(on)} ${on ? "Dans À voir" : long ? "À voir plus tard" : "À voir"}`;
+      if (long && list === "fav") { const row = $("#seenRow"); if (row) row.innerHTML = seenRowHTML(it); const fr = $("#folderRow"); if (fr) fr.innerHTML = folderRowHTML(it); }
+      act.innerHTML = list === "fav" ? `${I.heart(on)} ${on ? (long ? "Dans mes pellicules" : "Gardé") : long ? "Ajouter à mes pellicules" : "J'aime"}` : `${I.mark(on)} ${on ? "Dans À voir" : long ? "À voir plus tard" : "À voir"}`;
     }
     return;
   }
@@ -979,6 +1125,15 @@ document.addEventListener("click", (e) => {
   if (sc) { e.preventDefault(); document.getElementById(sc.dataset.scroll)?.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
   if (e.target.closest("[data-back]")) { if (history.length > 1) history.back(); else location.hash = "#accueil"; return; }
   if (e.target.closest("[data-retry]")) return rerender();
+  const fb = e.target.closest("[data-folder]");
+  if (fb) { state.folder = fb.dataset.folder; state.folderUI = ""; return viewPellicules(); }
+  const fui = e.target.closest("[data-folder-ui]");
+  if (fui) { state.folderUI = fui.dataset.folderUi; return viewPellicules(); }
+  const idea = e.target.closest("[data-folder-idea]");
+  if (idea) { const f = createFolder(idea.dataset.folderIdea); if (f) state.folder = f.id; state.folderUI = ""; return viewPellicules(); }
+  if (e.target.closest("[data-folder-delete]")) { deleteFolder(state.folder); state.folder = "all"; state.folderUI = ""; return viewPellicules(); }
+  const fopen = e.target.closest("[data-folders]");
+  if (fopen) { e.preventDefault(); return openFolderSheet(fopen.closest("[data-key]").dataset.key); }
   if (e.target.closest("[data-seen-clear]")) return setSeen(e.target.closest("[data-key]").dataset.key, "");
   const more = e.target.closest("[data-bio-more]");
   if (more) { const b = $("#bio"); const open = b.classList.toggle("clamped"); more.textContent = open ? "Lire la suite" : "Réduire"; return; }
@@ -1073,7 +1228,31 @@ async function cloudWrite(list, item, on) {
   const { error } = await q;
   if (error) toast("Pas pu enregistrer dans ton compte. Réessaie.", I.info);
 }
+function cloudFolder(f) {
+  if (!sb || !user) return;
+  sb.from("folders").upsert({ user_id: user.id, id: f.id, name: f.name, position: f.position || 0 }).then(({ error }) => error && toast("Pas pu enregistrer le dossier en ligne.", I.info));
+}
+function cloudItems(items) {
+  if (!sb || !user || !items.length) return;
+  sb.from("list_items").upsert(items.map(it => ({ user_id: user.id, list: "fav", item_key: it.key, item: it, added_at: new Date(it.added || Date.now()).toISOString() })))
+    .then(({ error }) => error && toast("Pas pu enregistrer dans ton compte.", I.info));
+}
+async function syncFolders() {
+  const { data, error } = await sb.from("folders").select("id,name,position").order("position");
+  if (error) return;
+  const cloud = data.map(f => ({ id: f.id, name: f.name, position: f.position }));
+  const remap = {}; const up = [];
+  for (const lf of state.saved.folders) {
+    const same = cloud.find(c => c.id === lf.id) || cloud.find(c => normName(c.name) === normName(lf.name));
+    if (same) { remap[lf.id] = same.id; continue; }
+    const nf = { ...lf, position: cloud.length }; cloud.push(nf); up.push({ user_id: user.id, id: nf.id, name: nf.name, position: nf.position });
+  }
+  state.saved.fav.forEach(it => { if (it.folders) it.folders = [...new Set(it.folders.map(x => remap[x] || x))]; });
+  state.saved.folders = cloud;
+  if (up.length) await sb.from("folders").upsert(up);
+}
 async function syncOnLogin() {
+  await syncFolders();
   const { data, error } = await sb.from("list_items").select("list,item_key,item,added_at").order("added_at", { ascending: false });
   if (error) { toast("Impossible de charger tes listes.", I.info); return; }
   const cloud = { fav: [], watch: [] };
@@ -1139,7 +1318,7 @@ function openAccount(mode = "login") {
   } else {
     const signup = mode === "signup";
     html = `${head(signup ? "Créer un compte" : "Se connecter")}
-      <p>${signup ? "Garde tes favoris et ta liste « À voir » sur tous tes appareils." : "Retrouve tes favoris et ta liste « À voir » partout."}</p>
+      <p>${signup ? "Garde tes pellicules, tes dossiers et ta liste « À voir » sur tous tes appareils." : "Retrouve tes pellicules et ta liste « À voir » partout."}</p>
       <div class="tabs" role="tablist"><button role="tab" data-mode="login" aria-selected="${!signup}">Connexion</button><button role="tab" data-mode="signup" aria-selected="${signup}">Inscription</button></div>
       ${google}
       <form class="auth-form" id="aForm" novalidate>
@@ -1162,7 +1341,7 @@ function openAccount(mode = "login") {
     if (error) say(authMsg(error), "err");
   });
   ov.querySelector("#outBtn")?.addEventListener("click", async () => {
-    await sb.auth.signOut(); user = null; state.saved.fav = []; state.saved.watch = []; save(); updateCounts(); renderAcct(); close(); rerender(); toast("Déconnecté", I.info);
+    await sb.auth.signOut(); user = null; state.saved.fav = []; state.saved.watch = []; state.saved.folders = []; state.folder = "all"; save(); updateCounts(); renderAcct(); close(); rerender(); toast("Déconnecté", I.info);
   });
   ov.querySelector("#aForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
