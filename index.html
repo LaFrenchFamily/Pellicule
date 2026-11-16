@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>[hidden]{display:none!important}body{margin:0}</style>
 <title>Pellicule</title>
+<script>
+/* Applique le thème choisi avant l'affichage, pour éviter un flash. */
+(function () {
+  var t = "dark"; try { t = localStorage.getItem("pellicule.theme") || "dark"; } catch (e) {}
+  if (t === "auto") t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", t === "light" ? "light" : "dark");
+})();
+</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,15 +22,20 @@
    affiches en grand, rangées qui défilent comme une programmation. Thème sombre assumé. */
 :root {
   --ink: #0d0b12;          /* fond de salle */
+  --ink-rgb: 13, 11, 18;
   --surface: #17141f;      /* panneaux */
+  --surface-rgb: 23, 20, 31;
   --surface-2: #221d2c;    /* champs, survols */
-  --line: rgba(244, 230, 210, .10);
+  --line: rgba(var(--fg-rgb), .10);
   --text: #f4eee6;         /* texte principal, blanc chaud */
+  --text-2: #e6ddd2;       /* texte de lecture, un cran sous le principal */
   --muted: #a99fb3;        /* texte secondaire */
   --accent: #f2b449;       /* or de marquise */
   --accent-ink: #1b1306;   /* texte sur or */
+  --accent-hover: #f7c66d;
   --heart: #ff5d73;        /* favori */
   --ok: #6fd3a8;
+  --danger: #ff9aa8;
   --font-display: "Instrument Serif", "Georgia", "Times New Roman", serif;
   --font-body: "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
   --r-sm: 8px; --r-md: 14px; --r-pill: 999px;
@@ -31,6 +44,19 @@
   --gutter-l: max(16px, env(safe-area-inset-left, 0px));
   --gutter-r: max(16px, env(safe-area-inset-right, 0px));
   color-scheme: dark;
+}
+/* Mode clair : la même salle, lumières allumées. Papier chaud, encre prune, or plus profond. */
+:root[data-theme="light"] {
+  --ink: #f6f1ea; --ink-rgb: 246, 241, 234;
+  --surface: #ffffff; --surface-rgb: 255, 255, 255;
+  --surface-2: #eee7dd;
+  --fg-rgb: 40, 26, 46;
+  --line: rgba(var(--fg-rgb), .12);
+  --text: #1c1520; --text-2: #3a3140; --muted: #6a6070;
+  --accent: #a65d06; --accent-ink: #ffffff; --accent-hover: #8f4f03;
+  --heart: #d62d4a; --ok: #1d7f55; --danger: #b4233c;
+  --shadow: 0 18px 44px -20px rgba(60,40,30,.35);
+  color-scheme: light;
 }
 * { box-sizing: border-box; }
 html { background: var(--ink); }
@@ -50,7 +76,7 @@ img { max-width: 100%; display: block; }
 /* ---------- En-tête ---------- */
 .top {
   position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50;
-  background: linear-gradient(180deg, rgba(13,11,18,.96), rgba(13,11,18,.82));
+  background: linear-gradient(180deg, rgba(var(--ink-rgb), .96), rgba(var(--ink-rgb), .82));
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--line);
 }
@@ -82,7 +108,7 @@ img { max-width: 100%; display: block; }
   border: 1px solid var(--line); background: var(--surface); cursor: pointer; color: var(--text);
   transition: background .2s var(--ease), border-color .2s var(--ease), transform .2s var(--ease);
 }
-.icon-btn:hover { background: var(--surface-2); border-color: rgba(244,230,210,.22); }
+.icon-btn:hover { background: var(--surface-2); border-color: rgba(var(--fg-rgb), .22); }
 .acct-btn { font-weight: 800; font-size: 15px; }
 .acct-btn.in { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--ink); border-radius: var(--r-pill); padding: 4px; gap: 4px; }
@@ -99,9 +125,8 @@ img { max-width: 100%; display: block; }
 .who .avatar-sm { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); font-weight: 800; font-size: 20px; flex: none; }
 .who b { display: block; overflow-wrap: anywhere; }
 .who small { color: var(--ok); font-size: 13px; }
-.mode-dot { position: relative; }
-.mode-dot::after { content: ""; position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); }
-.mode-dot.live::after { background: var(--ok); }
+.icon-btn[aria-current="page"] { color: var(--accent); border-color: var(--accent); }
+a.icon-btn { text-decoration: none; }
 
 /* Barre du bas sur mobile */
 .tabbar { display: none; }
@@ -110,9 +135,10 @@ img { max-width: 100%; display: block; }
   .top-row { gap: 12px; flex-wrap: wrap; }
   .search { order: 3; flex-basis: 100%; max-width: none; }
   .top-row .icon-btn { margin-left: auto; }
+  .top-row .icon-btn:not([hidden]) ~ .icon-btn { margin-left: 0; }
   .tabbar {
     display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
-    background: rgba(18,15,24,.94); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    background: rgba(var(--surface-rgb), .94); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
     border-top: 1px solid var(--line);
     padding: 6px var(--gutter-r) calc(6px + env(safe-area-inset-bottom, 0px)) var(--gutter-l);
   }
@@ -133,14 +159,14 @@ img { max-width: 100%; display: block; }
 .hero-bg { position: absolute; inset: 0; z-index: -2; background-size: cover; background-position: center 25%; }
 .hero-bg img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
 .hero::after { content: ""; position: absolute; inset: 0; z-index: -1;
-  background: linear-gradient(90deg, rgba(13,11,18,.96) 0%, rgba(13,11,18,.75) 40%, rgba(13,11,18,.15) 75%),
-              linear-gradient(0deg, var(--ink) 0%, rgba(13,11,18,0) 45%); }
+  background: linear-gradient(90deg, rgba(var(--ink-rgb), .96) 0%, rgba(var(--ink-rgb), .75) 40%, rgba(var(--ink-rgb), .15) 75%),
+              linear-gradient(0deg, var(--ink) 0%, rgba(var(--ink-rgb), 0) 45%); }
 .hero-inner { padding-block: 72px 56px; max-width: 1280px; }
 .hero-copy { max-width: 600px; display: grid; gap: 16px; }
 .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); display: flex; align-items: center; gap: 10px; }
 .eyebrow::before { content: ""; width: 24px; height: 1px; background: currentColor; }
 .hero h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(44px, 7vw, 92px); line-height: .95; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
-.hero p.syn { margin: 0; color: #d9d0c6; font-size: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.hero p.syn { margin: 0; color: var(--text-2); font-size: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; color: var(--muted); font-size: 14px; font-weight: 500; }
 .meta .sep { width: 3px; height: 3px; border-radius: 50%; background: var(--muted); opacity: .6; }
 .stars { color: var(--accent); font-weight: 700; display: inline-flex; align-items: center; gap: 5px; font-variant-numeric: tabular-nums; }
@@ -154,9 +180,9 @@ img { max-width: 100%; display: block; }
 }
 .btn:active { transform: scale(.97); }
 .btn-primary { background: var(--accent); color: var(--accent-ink); }
-.btn-primary:hover { background: #f7c66d; }
-.btn-ghost { background: rgba(244,238,230,.08); border-color: rgba(244,238,230,.14); color: var(--text); }
-.btn-ghost:hover { background: rgba(244,238,230,.14); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-ghost { background: rgba(var(--fg-rgb), .08); border-color: rgba(var(--fg-rgb), .14); color: var(--text); }
+.btn-ghost:hover { background: rgba(var(--fg-rgb), .14); }
 .btn-ghost.on-fav { color: var(--heart); border-color: rgba(255,93,115,.45); background: rgba(255,93,115,.10); }
 .btn-ghost.on-watch { color: var(--accent); border-color: rgba(242,180,73,.45); background: rgba(242,180,73,.10); }
 .btn svg { flex: none; }
@@ -219,7 +245,7 @@ img { max-width: 100%; display: block; }
 .page-head p { margin: 8px 0 0; color: var(--muted); max-width: 60ch; }
 
 /* ---------- États vides ---------- */
-.empty { border: 1px dashed rgba(244,230,210,.18); border-radius: 20px; padding: 48px 24px; text-align: center; display: grid; justify-items: center; gap: 12px; margin-block: 16px 40px; }
+.empty { border: 1px dashed rgba(var(--fg-rgb), .18); border-radius: 20px; padding: 48px 24px; text-align: center; display: grid; justify-items: center; gap: 12px; margin-block: 16px 40px; }
 .empty .ico { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); color: var(--accent); }
 .empty h3 { font-family: var(--font-display); font-weight: 400; font-size: 30px; margin: 0; }
 .empty p { margin: 0; color: var(--muted); max-width: 46ch; }
@@ -232,7 +258,7 @@ img { max-width: 100%; display: block; }
 .detail { position: relative; isolation: isolate; }
 .detail-bg { position: absolute; inset: 0 0 auto; height: min(620px, 80vh); z-index: -2; overflow: hidden; }
 .detail-bg img, .detail-bg .art { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
-.detail-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, var(--ink) 4%, rgba(13,11,18,.72) 50%, rgba(13,11,18,.35)), linear-gradient(90deg, rgba(13,11,18,.85), rgba(13,11,18,0) 70%); }
+.detail-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, var(--ink) 4%, rgba(var(--ink-rgb), .72) 50%, rgba(var(--ink-rgb), .35)), linear-gradient(90deg, rgba(var(--ink-rgb), .85), rgba(var(--ink-rgb), 0) 70%); }
 .back { margin-top: 20px; }
 .detail-head { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 40px; padding-block: 32px 24px; align-items: end; }
 .detail-poster { aspect-ratio: 2/3; max-width: 100%; border-radius: 18px; overflow: hidden; position: relative; box-shadow: var(--shadow), 0 0 0 1px rgba(255,255,255,.06); background: var(--surface); }
@@ -240,9 +266,9 @@ img { max-width: 100%; display: block; }
 .detail-info { display: grid; gap: 16px; min-width: 0; }
 .detail-info h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(42px, 6vw, 80px); line-height: .95; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
 .orig { font-family: var(--font-display); font-style: italic; color: var(--muted); font-size: 20px; margin-top: -6px; }
-.tagline { font-family: var(--font-display); font-style: italic; font-size: 22px; color: #e6dccf; margin: 0; }
+.tagline { font-family: var(--font-display); font-style: italic; font-size: 22px; color: var(--text-2); margin: 0; }
 .genre-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.genre-chips span { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: var(--r-pill); border: 1px solid rgba(244,238,230,.18); color: #e7dfd5; }
+.genre-chips span { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: var(--r-pill); border: 1px solid rgba(var(--fg-rgb), .18); color: var(--text-2); }
 .score { display: flex; align-items: center; gap: 12px; }
 .ring { position: relative; width: 58px; height: 58px; flex: none; }
 .ring svg { transform: rotate(-90deg); }
@@ -251,7 +277,7 @@ img { max-width: 100%; display: block; }
 .score strong { font-size: 14px; }
 .detail-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 40px; padding-bottom: 32px; }
 .block h2 { font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
-.syn-long { font-size: 17px; line-height: 1.7; color: #e9e1d7; margin: 0; max-width: 68ch; }
+.syn-long { font-size: 17px; line-height: 1.7; color: var(--text-2); margin: 0; max-width: 68ch; }
 .facts { display: grid; gap: 0; margin: 0; border-top: 1px solid var(--line); }
 .facts div { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
 .facts dt { color: var(--muted); }
@@ -282,7 +308,7 @@ a.person:hover b { color: var(--accent); }
 .seen-row input[type=date]:focus { outline: none; border-color: var(--accent); }
 .folder-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .fchip { height: 40px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-weight: 600; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all .2s var(--ease); }
-.fchip:hover { border-color: rgba(244,230,210,.25); }
+.fchip:hover { border-color: rgba(var(--fg-rgb), .25); }
 .fchip svg { color: var(--accent); }
 .fchip .n { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .fchip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
@@ -299,8 +325,8 @@ a.person:hover b { color: var(--accent); }
 .folder-head { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; padding-block: 20px 4px; }
 .folder-head h2 { font-family: var(--font-display); font-weight: 400; font-size: 34px; margin: 0; line-height: 1; }
 .folder-head .tools { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; font-size: 14px; }
-.danger { color: #ff9aa8 !important; }
-.btn-danger { background: rgba(255,93,115,.14); border-color: rgba(255,93,115,.45); color: #ffb3bf; }
+.danger { color: var(--danger) !important; }
+.btn-danger { background: rgba(255,93,115,.14); border-color: rgba(255,93,115,.45); color: var(--danger); }
 .frow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 50px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--ink); color: var(--text); font: inherit; font-weight: 600; cursor: pointer; text-align: left; }
 .frow .box { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--muted); display: grid; place-items: center; flex: none; color: var(--accent-ink); }
 .frow[aria-checked="true"] { border-color: rgba(242,180,73,.5); }
@@ -322,7 +348,7 @@ a.person:hover b { color: var(--accent); }
 .person-photo img { width: 100%; height: 100%; object-fit: cover; }
 .person-info { display: grid; gap: 14px; min-width: 0; }
 .person-info h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(42px, 6vw, 76px); line-height: .95; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
-.bio { font-size: 16px; line-height: 1.7; color: #e9e1d7; margin: 0; max-width: 72ch; white-space: pre-line; }
+.bio { font-size: 16px; line-height: 1.7; color: var(--text-2); margin: 0; max-width: 72ch; white-space: pre-line; }
 .bio.clamped { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
 .role { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 560px) { .person-head { grid-template-columns: minmax(0, 120px) minmax(0, 1fr); gap: 18px; } .person-photo { font-size: 44px; } }
@@ -383,7 +409,7 @@ a.person:hover b { color: var(--accent); }
 .sheet h2 { font-family: var(--font-display); font-weight: 400; font-size: 36px; margin: 0; line-height: 1; }
 .sheet p { margin: 0; color: var(--muted); }
 .steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; counter-reset: s; }
-.steps li { counter-increment: s; display: grid; grid-template-columns: 28px 1fr; gap: 10px; font-size: 14px; color: #e3dbd1; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 28px 1fr; gap: 10px; font-size: 14px; color: var(--text-2); }
 .steps li::before { content: counter(s); width: 26px; height: 26px; border-radius: 50%; background: var(--surface-2); color: var(--accent); font-weight: 800; font-size: 13px; display: grid; place-items: center; }
 .steps a { color: var(--accent); }
 .field { display: grid; gap: 6px; }
@@ -392,7 +418,7 @@ a.person:hover b { color: var(--accent); }
 .field input:focus { outline: none; border-color: var(--accent); }
 .status { font-size: 13.5px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); color: var(--muted); }
 .status.ok { color: var(--ok); background: rgba(111,211,168,.1); }
-.status.err { color: #ff9aa8; background: rgba(255,93,115,.1); }
+.status.err { color: var(--danger); background: rgba(255,93,115,.1); }
 .sheet-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
 /* ---------- Toast ---------- */
@@ -405,6 +431,47 @@ a.person:hover b { color: var(--accent); }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 footer { color: var(--muted); font-size: 12.5px; padding-block: 32px 40px; border-top: 1px solid var(--line); margin-top: 32px; }
 footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+/* ---------- Paramètres ---------- */
+.settings { max-width: 820px; display: grid; gap: 18px; padding-bottom: 24px; }
+.set-panel { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 24px; display: grid; gap: 16px; min-width: 0; }
+.set-panel h2 { font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1; margin: 0; letter-spacing: -.01em; }
+.set-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.set-panel .lead { margin: 0; color: var(--muted); max-width: 62ch; }
+.set-panel .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.who-mail { display: block; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.stat { background: var(--ink); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; text-decoration: none; transition: border-color .2s var(--ease); }
+.stat:hover { border-color: var(--accent); }
+.stat b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat span { color: var(--muted); font-size: 13px; }
+.pw-form { max-width: 420px; }
+.set-rows { margin: 0; border-top: 1px solid var(--line); }
+.set-row { display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr); gap: 4px 16px; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.set-row dt { color: var(--muted); }
+.set-row dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.set-row .unset { color: var(--muted); font-weight: 500; font-style: italic; }
+.theme-opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.theme-opt { display: grid; gap: 10px; padding: 10px 10px 12px; border-radius: 16px; border: 1px solid var(--line); background: var(--ink); color: var(--text); text-align: left; cursor: pointer; transition: border-color .2s var(--ease), box-shadow .2s var(--ease); }
+.theme-opt:hover { border-color: rgba(var(--fg-rgb), .3); }
+.theme-opt[aria-checked="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.theme-txt { display: grid; gap: 2px; padding-inline: 4px; }
+.theme-txt strong { font-size: 14.5px; display: flex; align-items: center; gap: 8px; }
+.theme-opt[aria-checked="true"] .theme-txt strong::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.theme-txt small { color: var(--muted); font-size: 12.5px; line-height: 1.4; }
+.theme-prev { display: flex; aspect-ratio: 16 / 10; border-radius: 10px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(var(--fg-rgb), .12); }
+.tp { flex: 1; min-width: 0; display: grid; grid-template-columns: 34% 1fr; grid-template-rows: repeat(3, 6px); gap: 7px 7px; padding: 10px; align-content: center; }
+.tp i { grid-row: 1 / 4; height: 100%; min-height: 34px; border-radius: 4px; background: linear-gradient(160deg, #f2b449, #9b3b5f); }
+.tp b { border-radius: 3px; }
+.tp b:nth-of-type(2) { width: 80%; } .tp b:nth-of-type(3) { width: 55%; }
+.tp.d { background: #0d0b12; } .tp.d b { background: #f4eee6; } .tp.d b + b { background: #4a4254; }
+.tp.l { background: #f6f1ea; } .tp.l b { background: #1c1520; } .tp.l b + b { background: #cbc2b8; }
+@media (max-width: 560px) {
+  .set-panel { padding: 20px 16px; }
+  .set-row { grid-template-columns: minmax(0, 1fr); }
+  .theme-opts { grid-template-columns: minmax(0, 1fr); }
+  .theme-opt { grid-template-columns: 112px minmax(0, 1fr); align-items: center; }
+  .stat { padding: 10px 12px; }
+}
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
 </style>
 
@@ -425,16 +492,16 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wr
       <label class="sr" for="q">Rechercher un film, une série ou un animé</label>
       <input id="q" type="search" placeholder="Rechercher un film, une série, un animé…" autocomplete="off">
     </div>
-    <button class="icon-btn acct-btn" id="acctBtn" aria-label="Mon compte" title="Mon compte" hidden>
+    <button class="icon-btn acct-btn" id="acctBtn" aria-label="Se connecter" title="Mon compte" hidden>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
     </button>
-    <button class="icon-btn mode-dot" id="settingsBtn" aria-label="Réglages et clé TMDB" title="Réglages">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
-    </button>
+    <a class="icon-btn" id="settingsBtn" href="#parametres" data-nav="parametres" aria-label="Paramètres" title="Paramètres">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </a>
   </div>
 </header>
 <div class="demo-strip" id="demoStrip" hidden>
-  <div class="wrap"><span><strong>Mode démo</strong> · catalogue d'exemple de 20 titres, affiches dessinées.</span><button class="link-btn" data-open-settings>Brancher TMDB pour tout le catalogue</button></div>
+  <div class="wrap"><span><strong>Mode démo</strong> · catalogue d'exemple de 20 titres, affiches dessinées.</span></div>
 </div>
 
 <main id="app" tabindex="-1"></main>
@@ -858,7 +925,7 @@ function skeletonRows(n = 3) {
 }
 function errorBox(msg) {
   return `<div class="wrap"><div class="empty"><div class="ico">${I.info}</div><h3>Ça n'a pas chargé</h3><p>${esc(msg)}</p>
-    <div class="actions" style="justify-content:center"><button class="btn btn-primary" data-retry>Réessayer</button><button class="btn btn-ghost" data-open-settings>Vérifier la clé TMDB</button></div></div></div>`;
+    <div class="actions" style="justify-content:center"><button class="btn btn-primary" data-retry>Réessayer</button></div></div></div>`;
 }
 function heroHTML(it) {
   remember([it]);
@@ -924,7 +991,7 @@ async function viewSearch() {
     const shown = res.filter(passFilter);
     app.innerHTML = `<div class="view">${head(`${shown.length} titre${shown.length > 1 ? "s" : ""} trouvé${shown.length > 1 ? "s" : ""}${isLive() ? "" : " dans le catalogue de démo"}`)}
       <div class="wrap">${shown.length ? `<div class="grid">${shown.map(i => cardHTML(i)).join("")}</div>` :
-      `<div class="empty"><div class="ico">${I.search}</div><h3>Aucun résultat</h3><p>${isLive() ? "Vérifie l'orthographe ou essaie un autre filtre." : "Le mode démo ne contient que 20 titres. Branche TMDB pour chercher dans tout le catalogue."}</p>${isLive() ? "" : `<button class="btn btn-primary" data-open-settings>Brancher TMDB</button>`}</div>`}</div></div>`;
+      `<div class="empty"><div class="ico">${I.search}</div><h3>Aucun résultat</h3><p>${isLive() ? "Vérifie l'orthographe ou essaie un autre filtre." : "Le mode démo ne contient que 20 titres d'exemple."}</p></div>`}</div></div>`;
   } catch (e) { if (seq === state.searchSeq) app.innerHTML = errorBox(e.message); }
 }
 
@@ -1029,7 +1096,7 @@ async function viewSuggestions() {
 function ring(r) {
   const pct = Math.max(0, Math.min(1, (r || 0) / 10)); const C = 2 * Math.PI * 25;
   const col = r >= 7.5 ? "var(--ok)" : r >= 6 ? "var(--accent)" : "var(--heart)";
-  return `<div class="ring" role="img" aria-label="Note ${fmtRating(r)} sur 10"><svg width="58" height="58" viewBox="0 0 58 58" aria-hidden="true"><circle cx="29" cy="29" r="25" fill="none" stroke="rgba(244,238,230,.12)" stroke-width="5"/><circle cx="29" cy="29" r="25" fill="none" stroke="${col}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${C * pct} ${C}"/></svg><b>${fmtRating(r)}</b></div>`;
+  return `<div class="ring" role="img" aria-label="Note ${fmtRating(r)} sur 10"><svg width="58" height="58" viewBox="0 0 58 58" aria-hidden="true"><circle cx="29" cy="29" r="25" fill="none" style="stroke:rgba(var(--fg-rgb),.12)" stroke-width="5"/><circle cx="29" cy="29" r="25" fill="none" stroke="${col}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${C * pct} ${C}"/></svg><b>${fmtRating(r)}</b></div>`;
 }
 function providersHTML(it) {
   const p = it.providers;
@@ -1157,7 +1224,7 @@ async function setPublic(on) {
   const draft = { ...(state.profile || {}), is_public: on };
   if (await saveProfile(draft, state.profile?.completed || false)) {
     toast(on ? "Tes pellicules sont maintenant publiques" : "Tes pellicules sont maintenant privées", on ? I.check : I.info);
-    if (on && !state.profile?.display_name) setTimeout(() => toast("Ajoute un pseudo dans « Mon compte » pour qu'on te reconnaisse.", I.info), 2000);
+    if (on && !state.profile?.display_name) setTimeout(() => toast("Ajoute un pseudo dans « Paramètres » pour qu'on te reconnaisse.", I.info), 2000);
     rerender();
   }
 }
@@ -1229,6 +1296,7 @@ function router() {
   document.querySelectorAll("[data-nav]").forEach(a => { if (a.dataset.nav === navKey) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   if (h !== "recherche" && !isPage(h)) document.title = "Pellicule";
   if (h !== lastRoute) window.scrollTo({ top: 0 });
+  if (h === "parametres") document.title = "Paramètres · Pellicule";
   if (h !== lastRoute && (["pellicules","a-voir","suggestions","recherche"].includes(h) || h.startsWith("personne-") || h.startsWith("membre-"))) state.filter = "all";
   lastRoute = h;
   let m;
@@ -1240,6 +1308,7 @@ function router() {
     case "a-voir": return viewList("watch");
     case "suggestions": return viewSuggestions();
     case "communaute": return viewCommunity();
+    case "parametres": return viewSettings();
     case "recherche": return viewSearch();
     default: return viewHome();
   }
@@ -1286,7 +1355,8 @@ document.addEventListener("click", (e) => {
   if (e.target.closest("[data-retry]")) return rerender();
   const sp = e.target.closest("[data-set-public]");
   if (sp) { document.querySelector(".overlay")?.remove(); return setPublic(sp.dataset.setPublic === "1"); }
-  if (e.target.closest("[data-open-acct]")) return openAccount("signup");
+  const oa = e.target.closest("[data-open-acct]");
+  if (oa) return openAccount(oa.dataset.openAcct || "signup");
   const mf = e.target.closest("[data-mfolder]");
   if (mf) { state.mFolder = mf.dataset.mfolder; return rerender(); }
   const fb = e.target.closest("[data-folder]");
@@ -1301,7 +1371,6 @@ document.addEventListener("click", (e) => {
   if (e.target.closest("[data-seen-clear]")) return setSeen(e.target.closest("[data-key]").dataset.key, "");
   const more = e.target.closest("[data-bio-more]");
   if (more) { const b = $("#bio"); const open = b.classList.toggle("clamped"); more.textContent = open ? "Lire la suite" : "Réduire"; return; }
-  if (e.target.closest("[data-open-settings]")) return openSettings();
 });
 
 let tmr;
@@ -1314,50 +1383,8 @@ $("#q").addEventListener("input", (e) => {
 });
 $("#q").addEventListener("keydown", (e) => { if (e.key === "Escape") { e.target.value = ""; state.q = ""; if (location.hash === "#recherche") viewSearch(); } });
 
-/* ================= Réglages ================= */
-$("#settingsBtn").addEventListener("click", openSettings);
-function openSettings() {
-  const ov = document.createElement("div");
-  ov.className = "overlay";
-  ov.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="setT">
-    <div class="sheet-head"><div><h2 id="setT">${DEFAULT_TOKEN ? "Source des données" : "Brancher TMDB"}</h2></div><button class="icon-btn" data-close aria-label="Fermer">${I.close}</button></div>
-    <p>TMDB est la base de données gratuite qui fournit les affiches, synopsis, castings et bandes-annonces de presque tous les films, séries et animés.</p>
-    <ol class="steps">
-      <li><span>Crée un compte gratuit sur <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a> et confirme ton e-mail.</span></li>
-      <li><span>Va dans <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener">Paramètres → API</a> et demande une clé (usage « Personnel »).</span></li>
-      <li><span>Copie la <b>Clé d'API</b> (32 caractères) ou le <b>Jeton d'accès en lecture</b> (commence par « eyJ »).</span></li>
-      <li><span>Colle-la ci-dessous. Elle reste enregistrée dans ce navigateur uniquement.</span></li>
-    </ol>
-    <div class="field"><label for="tok">Clé TMDB</label><input id="tok" type="text" spellcheck="false" autocomplete="off" placeholder="Colle ta clé ici" value="${esc(state.saved.token)}"></div>
-    <div class="status ${isLive() ? "ok" : ""}" id="tokStatus">${state.saved.token ? "Connecté à TMDB avec ta clé." : DEFAULT_TOKEN ? "Connecté à TMDB avec la clé intégrée au site. Tu n'as rien à faire." : "Mode démo actif : 20 titres d'exemple."}</div>
-    <div class="sheet-actions"><button class="btn btn-primary" id="tokSave">Enregistrer et tester</button>${state.saved.token ? `<button class="btn btn-ghost" id="tokClear">${DEFAULT_TOKEN ? "Utiliser la clé intégrée" : "Revenir au mode démo"}</button>` : ""}</div>
-  </div>`;
-  document.body.appendChild(ov);
-  const close = () => { ov.remove(); document.removeEventListener("keydown", onKey); $("#settingsBtn").focus(); };
-  const onKey = (e) => { if (e.key === "Escape") close(); };
-  document.addEventListener("keydown", onKey);
-  ov.addEventListener("click", (e) => { if (e.target === ov || e.target.closest("[data-close]")) close(); });
-  $("#tok", ov).focus();
-  $("#tokSave", ov).addEventListener("click", async () => {
-    const st = $("#tokStatus", ov); const val = $("#tok", ov).value.trim();
-    if (!val) { st.className = "status err"; st.textContent = "Colle d'abord ta clé TMDB dans le champ."; return; }
-    st.className = "status"; st.textContent = "Test de la clé…";
-    const prev = state.saved.token; state.saved.token = val;
-    try {
-      await tmdb("/configuration");
-      save(); applyMode(); st.className = "status ok"; st.textContent = "C'est bon, TMDB est branché !";
-      setTimeout(() => { close(); rerender(); }, 700);
-    } catch (e) {
-      state.saved.token = prev;
-      st.className = "status err";
-      st.textContent = e instanceof TypeError ? "Impossible de joindre TMDB depuis cette page. Si tu regardes l'aperçu en ligne, ouvre plutôt la version installée sur ton ordinateur." : e.message;
-    }
-  });
-  $("#tokClear", ov)?.addEventListener("click", () => { state.saved.token = ""; save(); applyMode(); close(); rerender(); });
-}
 function applyMode() {
   $("#demoStrip").hidden = isLive();
-  $("#settingsBtn").classList.toggle("live", isLive());
   $("#srcNote").innerHTML = isLive() ? "Données et images : TMDB. Ce produit utilise l'API TMDB sans être approuvé ni certifié par TMDB." : "Données de démonstration";
 }
 
@@ -1370,7 +1397,7 @@ function toast(msg, icon = "") {
 
 /* ================= Comptes (Supabase) ================= */
 const SB_URL = "https://xrhxqrfmufbhvbytxsrz.supabase.co"; const SB_KEY = "sb_publishable_yB3MDSYgl32AlnG2EhFqSQ_WVZ6LKfO"; const GOOGLE_ON = false; // remplis à la publication
-let sb = null, user = null;
+let sb = null, user = null, authKnown = false;
 const AUTH_ERR = [
   [/invalid login credentials/i, "E-mail ou mot de passe incorrect."],
   [/already registered|already been registered/i, "Un compte existe déjà avec cet e-mail. Connecte-toi plutôt."],
@@ -1432,6 +1459,7 @@ async function syncOnLogin() {
   save(); updateCounts(); rerender();
 }
 function renderAcct() {
+  if (location.hash === "#parametres") viewSettings();
   const b = $("#acctBtn"); if (!sb) { b.hidden = true; return; }
   b.hidden = false; b.classList.toggle("in", !!user);
   if (user) { b.textContent = (state.profile?.display_name || user.user_metadata?.full_name || user.email || "?").trim()[0].toUpperCase(); b.setAttribute("aria-label", "Mon compte : " + user.email); }
@@ -1447,7 +1475,7 @@ function initAuth() {
     renderAcct();
     sb.auth.onAuthStateChange((ev, session) => {
       const u = session?.user || null; const changed = (u?.id || null) !== (user?.id || null);
-      user = u; renderAcct();
+      user = u; authKnown = true; renderAcct();
       if (location.hash.includes("=")) history.replaceState(null, "", location.pathname + "#accueil");
       if (ev === "PASSWORD_RECOVERY") { setTimeout(() => openAccount("reset"), 0); return; }
       if (changed && u) setTimeout(() => { syncOnLogin().then(loadProfile); if (ev === "SIGNED_IN") toast("Connecté. Tes listes sont synchronisées.", I.heart(true)); }, 0);
@@ -1455,10 +1483,11 @@ function initAuth() {
   };
   document.head.appendChild(s);
 }
-$("#acctBtn").addEventListener("click", () => openAccount());
+$("#acctBtn").addEventListener("click", () => { if (user) location.hash = "#parametres"; else openAccount(); });
 
 function openAccount(mode = "login") {
   document.querySelector(".overlay")?.remove();
+  if (user && mode !== "reset") { location.hash = "#parametres"; return; }
   const ov = document.createElement("div"); ov.className = "overlay";
   const close = () => { ov.remove(); document.removeEventListener("keydown", onKey); };
   const onKey = (e) => { if (e.key === "Escape") close(); };
@@ -1467,15 +1496,7 @@ function openAccount(mode = "login") {
   const head = (t) => `<div class="sheet-head"><h2 id="acT">${t}</h2><button class="icon-btn" data-close aria-label="Fermer">${I.close}</button></div>`;
   const google = GOOGLE_ON ? `<button class="btn btn-google" id="gBtn" type="button"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continuer avec Google</button><div class="or">ou</div>` : "";
   let html;
-  if (user) {
-    const pr = state.profile;
-    const sum = pr ? [["Âge", pr.age_range], ["Genres", (pr.genres || []).join(", ")], ["Film préféré", pr.favorites?.movie?.title], ["Série / animé préféré", pr.favorites?.show?.title], ["Plateformes", (pr.platforms || []).join(", ")]].filter(([, v]) => v) : [];
-    html = `${head(pr?.display_name ? `Salut ${esc(pr.display_name)}` : "Mon compte")}<div class="who"><span class="avatar-sm">${esc((pr?.display_name || user.email || "?")[0].toUpperCase())}</span><div><b>${esc(user.email)}</b><small>Listes synchronisées sur tous tes appareils</small></div></div>
-      <p>${state.saved.fav.length} pellicule${state.saved.fav.length > 1 ? "s" : ""} et ${state.saved.watch.length} titre${state.saved.watch.length > 1 ? "s" : ""} à voir enregistrés dans ton compte.</p>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">${visPillHTML()}</div>
-      ${sum.length ? `<div class="profile-sum">${sum.map(([k, v]) => `<span>${esc(k)} : <b>${esc(v)}</b></span>`).join("")}</div>` : `<p>Ton profil n'est pas encore rempli. Il sert à te proposer des titres qui te ressemblent.</p>`}
-      <div class="sheet-actions"><button class="btn btn-primary" id="pfBtn">${pr?.completed ? "Modifier mon profil" : "Compléter mon profil"}</button><button class="btn btn-ghost" id="outBtn">Se déconnecter</button></div>`;
-  } else if (mode === "forgot") {
+  if (mode === "forgot") {
     html = `${head("Mot de passe oublié")}<p>Indique ton e-mail, on t'envoie un lien pour choisir un nouveau mot de passe.</p>
       <form class="auth-form" id="aForm" novalidate><div class="field"><label for="aEmail">E-mail</label><input class="plain" id="aEmail" type="email" autocomplete="email" required></div>
       <div class="status" id="aStatus" hidden></div><button class="btn btn-primary" type="submit">Envoyer le lien</button></form>
@@ -1501,16 +1522,12 @@ function openAccount(mode = "login") {
   ov.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="acT">${html}</div>`;
   document.body.appendChild(ov);
   ov.querySelectorAll("[data-mode]").forEach(b => b.addEventListener("click", () => openAccount(b.dataset.mode)));
-  (ov.querySelector("#aEmail") || ov.querySelector("#aPass") || ov.querySelector("#outBtn"))?.focus();
+  (ov.querySelector("#aEmail") || ov.querySelector("#aPass"))?.focus();
   const st = ov.querySelector("#aStatus");
   const say = (msg, cls = "") => { st.hidden = false; st.className = "status " + cls; st.textContent = msg; };
   ov.querySelector("#gBtn")?.addEventListener("click", async () => {
     const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: backUrl() } });
     if (error) say(authMsg(error), "err");
-  });
-  ov.querySelector("#pfBtn")?.addEventListener("click", () => openProfile(1, false));
-  ov.querySelector("#outBtn")?.addEventListener("click", async () => {
-    await sb.auth.signOut(); user = null; state.saved.fav = []; state.saved.watch = []; state.saved.folders = []; state.folder = "all"; state.profile = null; state.saved.profile = null; save(); updateCounts(); renderAcct(); close(); rerender(); toast("Déconnecté", I.info);
   });
   ov.querySelector("#aForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -1537,6 +1554,103 @@ function openAccount(mode = "login") {
     btn.disabled = false;
   });
 }
+
+/* ================= Thème ================= */
+const THEME_KEY = "pellicule.theme";
+const THEMES = [["dark", "Sombre", "La salle, lumières éteintes."], ["light", "Clair", "Fond papier, parfait en journée."], ["auto", "Automatique", "Suit le réglage de ton appareil."]];
+const mqLight = window.matchMedia("(prefers-color-scheme: light)");
+function getTheme() { try { const t = localStorage.getItem(THEME_KEY); return THEMES.some(([k]) => k === t) ? t : "dark"; } catch { return "dark"; } }
+function applyTheme(t = getTheme()) {
+  const eff = t === "auto" ? (mqLight.matches ? "light" : "dark") : t;
+  document.documentElement.setAttribute("data-theme", eff);
+}
+function setTheme(t) { try { localStorage.setItem(THEME_KEY, t); } catch {} applyTheme(t); }
+mqLight.addEventListener?.("change", () => { if (getTheme() === "auto") applyTheme(); });
+
+/* ================= Paramètres ================= */
+async function signOut() {
+  await sb.auth.signOut(); user = null; state.saved.fav = []; state.saved.watch = []; state.saved.folders = []; state.folder = "all"; state.profile = null; state.saved.profile = null;
+  save(); updateCounts(); renderAcct(); toast("Déconnecté", I.info); rerender();
+}
+const themePrevHTML = (k) => {
+  const pane = (m) => `<span class="tp ${m}"><i></i><b></b><b></b><b></b></span>`;
+  return `<span class="theme-prev" aria-hidden="true">${k === "auto" ? pane("d") + pane("l") : pane(k === "light" ? "l" : "d")}</span>`;
+};
+function viewSettings() {
+  const cur = getTheme();
+  const pr = state.profile;
+  let compte;
+  if (!SB_URL) compte = `<p class="lead">Les comptes sont disponibles sur la version en ligne de Pellicule. Ici, tes listes restent dans ce navigateur.</p>`;
+  else if (!sb || !authKnown) compte = `<div class="skel" style="height:76px;border-radius:14px"></div>`;
+  else if (!user) compte = `<p class="lead">Avec un compte, tes pellicules, tes dossiers et ta liste « À voir » te suivent sur tous tes appareils, et tu peux les partager avec la communauté.</p>
+      <div class="actions"><button class="btn btn-primary" data-open-acct="signup">Créer un compte</button><button class="btn btn-ghost" data-open-acct="login">Se connecter</button></div>`;
+  else {
+    const n = (k) => state.saved[k].length;
+    compte = `<div class="who"><span class="avatar-sm">${esc((pr?.display_name || user.email || "?")[0].toUpperCase())}</span><div><b>${esc(pr?.display_name || user.email)}</b>${pr?.display_name ? `<span class="who-mail">${esc(user.email)}</span>` : ""}<small>Listes synchronisées sur tous tes appareils</small></div></div>
+      <div class="stats"><a class="stat" href="#pellicules"><b>${n("fav")}</b><span>pellicule${n("fav") > 1 ? "s" : ""}</span></a><a class="stat" href="#a-voir"><b>${n("watch")}</b><span>à voir</span></a><a class="stat" href="#pellicules"><b>${(state.saved.folders || []).length}</b><span>dossier${(state.saved.folders || []).length > 1 ? "s" : ""}</span></a></div>
+      ${state.pwOpen ? `<form class="auth-form pw-form" id="pwForm" novalidate>
+        <div class="field"><label for="pw1">Nouveau mot de passe (6 caractères minimum)</label><input class="plain" id="pw1" type="password" autocomplete="new-password" minlength="6" required></div>
+        <div class="field"><label for="pw2">Confirme-le</label><input class="plain" id="pw2" type="password" autocomplete="new-password" minlength="6" required></div>
+        <div class="status" id="pwStatus" hidden></div>
+        <div class="actions"><button class="btn btn-primary" type="submit">Enregistrer le mot de passe</button><button class="btn btn-ghost" type="button" data-pw="0">Annuler</button></div></form>`
+      : `<div class="actions"><button class="btn btn-ghost" data-pw="1">${I.lock} Changer mon mot de passe</button><button class="btn btn-ghost" data-signout>Se déconnecter</button></div>`}`;
+  }
+  let profil = "";
+  if (sb && authKnown && user) {
+    const kinds = (pr?.kinds || []).map(k => KINDS.find(([v]) => v === k)?.[1]).filter(Boolean).join(", ");
+    const lang = LANGS.find(([v]) => v === pr?.lang)?.[1];
+    const rows = [["Pseudo", pr?.display_name], ["Âge", pr?.age_range], ["Tu regardes", kinds], ["Genres préférés", (pr?.genres || []).join(", ")], ["Film préféré", pr?.favorites?.movie?.title], ["Série ou animé préféré", pr?.favorites?.show?.title], ["Plateformes", (pr?.platforms || []).join(", ")], ["Bandes-annonces", lang]];
+    profil = `<section class="set-panel" id="set-profil" aria-labelledby="h-profil">
+      <div class="set-head"><h2 id="h-profil">Mon profil</h2><button class="btn btn-primary" data-edit-profile>${pr?.completed ? "Modifier" : "Compléter mon profil"}</button></div>
+      <p class="lead">Ces infos servent à te proposer des titres qui te ressemblent (rangée « Pour toi » à l'accueil).</p>
+      <dl class="set-rows">${rows.map(([k, v]) => `<div class="set-row"><dt>${esc(k)}</dt><dd>${v ? esc(v) : `<span class="unset">Pas renseigné</span>`}</dd></div>`).join("")}</dl>
+    </section>
+    <section class="set-panel" id="set-visibilite" aria-labelledby="h-vis">
+      <h2 id="h-vis">Visibilité</h2>
+      <p class="lead">${pr?.is_public ? "Tes pellicules sont visibles dans la communauté, avec ton pseudo. Ta liste « À voir » et ton e-mail restent privés." : "Tes pellicules sont privées : personne d'autre ne les voit. Rends-les publiques pour apparaître dans la communauté."}</p>
+      <div>${visPillHTML()}</div>
+    </section>`;
+  }
+  app.innerHTML = `<div class="view">
+    <div class="wrap page-head"><div><h1>Paramètres</h1><p>Ton compte, ton profil et l'apparence du site.</p></div></div>
+    <div class="wrap"><div class="settings">
+      <section class="set-panel" id="set-compte" aria-labelledby="h-compte"><h2 id="h-compte">Compte</h2>${compte}</section>
+      ${profil}
+      <section class="set-panel" id="set-apparence" aria-labelledby="h-app">
+        <h2 id="h-app">Apparence</h2>
+        <div class="theme-opts" role="radiogroup" aria-labelledby="h-app">${THEMES.map(([k, label, sub]) => `<button class="theme-opt" role="radio" aria-checked="${k === cur}" data-theme-set="${k}">${themePrevHTML(k)}<span class="theme-txt"><strong>${label}</strong><small>${sub}</small></span></button>`).join("")}</div>
+      </section>
+      <section class="set-panel" id="set-apropos" aria-labelledby="h-about">
+        <h2 id="h-about">À propos</h2>
+        <p class="lead">Pellicule rassemble tes films, séries et animés préférés. ${isLive() ? "Données et images : TMDB. Ce produit utilise l'API TMDB sans être approuvé ni certifié par TMDB. Disponibilités en streaming : JustWatch." : "Mode démo : catalogue d'exemple de 20 titres."}</p>
+      </section>
+    </div></div>
+  </div>`;
+  const f = $("#pwForm");
+  if (f) {
+    $("#pw1").focus();
+    f.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const st = $("#pwStatus"); const say = (m, c = "") => { st.hidden = false; st.className = "status " + c; st.textContent = m; };
+      const a = $("#pw1").value, b = $("#pw2").value;
+      if (a.length < 6) return say("Le mot de passe doit faire au moins 6 caractères.", "err");
+      if (a !== b) return say("Les deux mots de passe ne sont pas identiques.", "err");
+      const btn = f.querySelector("button[type=submit]"); btn.disabled = true;
+      const { error } = await sb.auth.updateUser({ password: a });
+      btn.disabled = false;
+      if (error) return say(authMsg(error), "err");
+      state.pwOpen = false; toast("Mot de passe changé", I.check); viewSettings();
+    });
+  }
+}
+document.addEventListener("click", (e) => {
+  const th = e.target.closest("[data-theme-set]");
+  if (th) { setTheme(th.dataset.themeSet); document.querySelectorAll("[data-theme-set]").forEach(b => b.setAttribute("aria-checked", b === th)); return; }
+  const pw = e.target.closest("[data-pw]");
+  if (pw) { state.pwOpen = pw.dataset.pw === "1"; return viewSettings(); }
+  if (e.target.closest("[data-signout]")) return signOut();
+  if (e.target.closest("[data-edit-profile]")) return openProfile(1, false);
+});
 
 /* ================= Profil ================= */
 const AGE_RANGES = ["Moins de 18 ans", "18 – 24 ans", "25 – 34 ans", "35 – 44 ans", "45 – 54 ans", "55 ans et plus"];
@@ -1625,7 +1739,7 @@ function openProfile(step = 1, first = false) {
     const ch = t.closest("[data-choose]"); if (ch) { const it = reg.get("pick:" + ch.dataset.k); if (it) draft.favorites[ch.dataset.choose] = pickSlim(it); return draw(); }
     const un = t.closest("[data-unpick]"); if (un) { delete draft.favorites[un.dataset.unpick]; draw(); ov.querySelector("#pfq-" + un.dataset.unpick)?.focus(); return; }
     const st = t.closest("[data-step]"); if (st) { keep(); step = +st.dataset.step; draw(); ov.querySelector(".sheet")?.scrollTo(0, 0); return; }
-    if (t.closest("[data-later]")) { keep(); if (first) await saveProfile(draft, false); close(); toast("Tu pourras compléter ton profil depuis « Mon compte ».", I.info); return; }
+    if (t.closest("[data-later]")) { keep(); if (first) await saveProfile(draft, false); close(); toast("Tu pourras compléter ton profil depuis « Paramètres ».", I.info); return; }
     if (t.closest("[data-finish]")) {
       keep(); const b = t.closest("[data-finish]"); b.disabled = true;
       if (await saveProfile(draft, true)) { close(); toast(draft.display_name ? `Merci ${draft.display_name}, ton profil est prêt !` : "Ton profil est prêt !", I.spark.replace('width="30" height="30"', 'width="18" height="18"')); rerender(); }
@@ -1635,7 +1749,7 @@ function openProfile(step = 1, first = false) {
   draw(); document.body.appendChild(ov); ov.querySelector("#pfName, .chip")?.focus();
 }
 
-applyMode(); updateCounts();
+applyTheme(); applyMode(); updateCounts();
 window.addEventListener("hashchange", () => { document.querySelector(".overlay")?.remove(); router(); });
 router();
 initAuth();
